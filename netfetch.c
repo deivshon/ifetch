@@ -6,7 +6,7 @@
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
 
-long long_from_file(char *path) {
+double double_from_file(char *path) {
     FILE *fs = fopen(path, "r");
 
     char number_str[20];
@@ -14,12 +14,12 @@ long long_from_file(char *path) {
 
     fclose(fs);
 
-    return atol(number_str);
+    return strtod(number_str, NULL);
 }
 
-int get_max_interface(char *dest, long *dest_rx_bytes, long *dest_tx_bytes) {
+int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) {
     int res = 0;
-    long current_max = -1;
+    double current_max = -1;
 
     char *ifs_path = "/sys/class/net";
     DIR *interfaces = opendir(ifs_path);
@@ -32,8 +32,8 @@ int get_max_interface(char *dest, long *dest_rx_bytes, long *dest_tx_bytes) {
     char cur_rxb_path[MAX_PATH_LENGTH];
     char cur_txb_path[MAX_PATH_LENGTH];
 
-    long cur_rx_bytes;
-    long cur_tx_bytes;
+    double cur_rx_bytes;
+    double cur_tx_bytes;
     while(entry = readdir(interfaces)) {
         if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
@@ -51,8 +51,8 @@ int get_max_interface(char *dest, long *dest_rx_bytes, long *dest_tx_bytes) {
 
         sprintf(cur_rxb_path, "%s/%s", cur_if_path, "statistics/rx_bytes");
         sprintf(cur_txb_path, "%s/%s", cur_if_path, "statistics/tx_bytes");
-        cur_rx_bytes = long_from_file(cur_rxb_path);
-        cur_tx_bytes = long_from_file(cur_txb_path);
+        cur_rx_bytes = double_from_file(cur_rxb_path);
+        cur_tx_bytes = double_from_file(cur_txb_path);
 
         if(cur_rx_bytes + cur_tx_bytes > current_max) {
             current_max = cur_rx_bytes + cur_tx_bytes;
@@ -68,8 +68,8 @@ int get_max_interface(char *dest, long *dest_rx_bytes, long *dest_tx_bytes) {
 
 int main() {
     char interface[32];
-    long rx = -1, tx = -1;
+    double rx = -1, tx = -1;
 
     get_max_interface(interface, &rx, &tx);
-    printf("%s\nrx: %ld\ntx: %ld\n", interface, rx, tx);
+    printf("%s\nrx: %0.lf\ntx: %0.lf\n", interface, rx, tx);
 }
