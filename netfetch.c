@@ -8,6 +8,16 @@
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
 
+char *ethernet_logo = "\
+┌───────────────┐\n\
+│   ┌───────┐   │\n\
+│ ┌─┘       └─┐ │\n\
+│ │           │ │\n\
+│ │ │ │ │ │ │ │ │\n\
+│ │ │ │ │ │ │ │ │\n\
+│ └─┴─┴─┴─┴─┴─┘ │\n\
+└───────────────┘\n";
+
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
 
