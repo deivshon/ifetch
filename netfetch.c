@@ -66,10 +66,30 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
     return res;
 }
 
+int to_formatted_bytes(char *dest, double bytes) {
+    char *suffixes[7] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
+
+    double approx_bytes = bytes;
+    int divisions = 0;
+
+    while(approx_bytes > 1e3 && divisions <= 7) {
+        approx_bytes /= 1024;
+        divisions++;
+    }
+
+    sprintf(dest, "%3.3lf %s", approx_bytes, suffixes[divisions]);
+    return 1;
+}
+
 int main() {
     char interface[32];
+    char rx_mu[16], tx_mu[16];
     double rx = -1, tx = -1;
 
     get_max_interface(interface, &rx, &tx);
-    printf("%s\nrx: %0.lf\ntx: %0.lf\n", interface, rx, tx);
+    to_formatted_bytes(rx_mu, rx);
+    to_formatted_bytes(tx_mu, tx);
+    printf("\033[1m\033[36mINTERFACE:\033[1m\033[37m %s\n", interface);
+    printf("\033[1m\033[36m       RX:\033[1m\033[37m %s\n", rx_mu);
+    printf("\033[1m\033[36m       TX:\033[1m\033[37m %s\n", tx_mu);
 }
