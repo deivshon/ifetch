@@ -3,8 +3,23 @@
 #include <stdlib.h>
 #include <dirent.h>
 
+#define INTERFACES_PATH "/sys/class/net"
+
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
+
+void line_from_file(char *dest, char *path) {
+    FILE *fs = fopen(path, "r");
+
+    char line[1024];
+    fgets(line, 1024, fs);
+
+    fclose(fs);
+
+    line[strcspn(line, "\n")] = '\0';
+
+    strcpy(dest, line);
+}
 
 double double_from_file(char *path) {
     FILE *fs = fopen(path, "r");
@@ -17,12 +32,18 @@ double double_from_file(char *path) {
     return strtod(number_str, NULL);
 }
 
+void get_mac(char *dest, char *interface) {
+    char mac_file_path[MAX_PATH_LENGTH];
+    sprintf(mac_file_path, "%s/%s/%s", INTERFACES_PATH, interface, "address");
+
+    line_from_file(dest, mac_file_path);
+}
+
 int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) {
     int res = 0;
     double current_max = -1;
 
-    char *ifs_path = "/sys/class/net";
-    DIR *interfaces = opendir(ifs_path);
+    DIR *interfaces = opendir(INTERFACES_PATH);
     struct dirent *entry;
 
     char cur_if_path[MAX_PATH_LENGTH];
@@ -38,7 +59,7 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
         if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
 
-        sprintf(cur_if_path, "%s/%s", ifs_path, entry->d_name);
+        sprintf(cur_if_path, "%s/%s", INTERFACES_PATH, entry->d_name);
         sprintf(cur_opstate_path, "%s/%s", cur_if_path, "operstate");
 
         FILE *opstate_file = fopen(cur_opstate_path, "r");
@@ -85,11 +106,15 @@ int main() {
     char interface[32];
     char rx_mu[16], tx_mu[16];
     double rx = -1, tx = -1;
+    char mac[18];
 
-    get_max_interface(interface, &rx, &tx);
+    int interface_available = get_max_interface(interface, &rx, &tx);
+    if(!interface_available) return 1;
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
-    printf("\033[1m\033[36mINTERFACE:\033[1m\033[37m %s\n", interface);
-    printf("\033[1m\033[36m       RX:\033[1m\033[37m %s\n", rx_mu);
-    printf("\033[1m\033[36m       TX:\033[1m\033[37m %s\n", tx_mu);
+    get_mac(mac, interface);
+    printf("\033[1m\033[36mINTERFACE\033[1m\033[37m: %s\n", interface);
+    printf("\033[1m\033[36m       RX\033[1m\033[37m: %s\n", rx_mu);
+    printf("\033[1m\033[36m       TX\033[1m\033[37m: %s\n", tx_mu);
+    printf("\033[1m\033[36m      MAC\033[1m\033[37m: %s\n", mac);
 }
