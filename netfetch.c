@@ -42,8 +42,7 @@ int get_max_interface(char *dest, long *dest_rx_bytes, long *dest_tx_bytes) {
         sprintf(cur_opstate_path, "%s/%s", cur_if_path, "operstate");
 
         FILE *opstate_file = fopen(cur_opstate_path, "r");
-        if(opstate_file == NULL) {
-            printf("%s: no operstate\n");
+        if(opstate_file == NULL) { // If the operstate file is missing, continue
             continue;
         }
         fgets(cur_opstate, 8, opstate_file);
