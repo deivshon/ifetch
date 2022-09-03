@@ -117,4 +117,5 @@ int main() {
     printf("\033[1m\033[36m       RX\033[1m\033[37m: %s\n", rx_mu);
     printf("\033[1m\033[36m       TX\033[1m\033[37m: %s\n", tx_mu);
     printf("\033[1m\033[36m      MAC\033[1m\033[37m: %s\n", mac);
+    printf("\033[0m\033[37m");
 }
