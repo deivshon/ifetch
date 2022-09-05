@@ -93,9 +93,6 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
     char cur_opstate_path[MAX_PATH_LENGTH];
     char cur_opstate[8];
 
-    char cur_rxb_path[MAX_PATH_LENGTH];
-    char cur_txb_path[MAX_PATH_LENGTH];
-
     double cur_rx_bytes;
     double cur_tx_bytes;
     while(entry = readdir(interfaces)) {
