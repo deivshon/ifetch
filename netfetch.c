@@ -8,15 +8,38 @@
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
 
-char *ethernet_logo = "\
-┌───────────────┐\n\
-│   ┌───────┐   │\n\
-│ ┌─┘       └─┐ │\n\
-│ │           │ │\n\
-│ │ │ │ │ │ │ │ │\n\
-│ │ │ │ │ │ │ │ │\n\
-│ └─┴─┴─┴─┴─┴─┘ │\n\
-└───────────────┘\n";
+enum transmission_type {TX, RX};
+
+#define BRED    "\033[1m\033[31m"
+#define BGREEN  "\033[1m\033[32m"
+#define BYELLOW "\033[1m\033[33m"
+#define BBLUE   "\033[1m\033[34m"
+#define BMAG    "\033[1m\033[35m"
+#define BCYAN   "\033[1m\033[36m"
+#define BWHITE  "\033[1m\033[37m"
+#define NORMAL  "\033[0m\033[37m"
+
+struct logo {
+    char row0[64];
+    char row1[64];
+    char row2[64];
+    char row3[64];
+    char row4[64];
+    char row5[64];
+    char row6[64];
+    char row7[64];
+};
+
+struct logo ethernet_logo = {
+    "┌───────────────┐",
+    "│   ┌───────┐   │",
+    "│ ┌─┘       └─┐ │",
+    "│ │           │ │",
+    "│ │ │ │ │ │ │ │ │",
+    "│ │ │ │ │ │ │ │ │",
+    "│ └─┴─┴─┴─┴─┴─┘ │",
+    "└───────────────┘"
+};
 
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
@@ -49,6 +72,16 @@ void get_mac(char *dest, char *interface) {
     line_from_file(dest, mac_file_path);
 }
 
+double get_bytes(char *interface, enum transmission_type t) {
+    char file_path[MAX_PATH_LENGTH];
+    if(t == RX)
+        sprintf(file_path, "%s/%s/%s", INTERFACES_PATH, interface, "/statistics/rx_bytes");
+    else if(t == TX)
+        sprintf(file_path, "%s/%s/%s", INTERFACES_PATH, interface, "/statistics/tx_bytes");
+
+    return double_from_file(file_path);
+}
+
 int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) {
     int res = 0;
     double current_max = -1;
@@ -69,8 +102,7 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
         if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
 
-        sprintf(cur_if_path, "%s/%s", INTERFACES_PATH, entry->d_name);
-        sprintf(cur_opstate_path, "%s/%s", cur_if_path, "operstate");
+        sprintf(cur_opstate_path, "%s/%s/%s", INTERFACES_PATH, entry->d_name, "operstate");
 
         FILE *opstate_file = fopen(cur_opstate_path, "r");
         if(opstate_file == NULL) { // If the operstate file is missing, continue
@@ -80,10 +112,8 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
         if(strcmp(cur_opstate, "up\n")) // If interface is not up, continue
             continue;
 
-        sprintf(cur_rxb_path, "%s/%s", cur_if_path, "statistics/rx_bytes");
-        sprintf(cur_txb_path, "%s/%s", cur_if_path, "statistics/tx_bytes");
-        cur_rx_bytes = double_from_file(cur_rxb_path);
-        cur_tx_bytes = double_from_file(cur_txb_path);
+        cur_rx_bytes = get_bytes(entry->d_name, RX);
+        cur_tx_bytes = get_bytes(entry->d_name, TX);
 
         if(cur_rx_bytes + cur_tx_bytes > current_max) {
             current_max = cur_rx_bytes + cur_tx_bytes;
@@ -118,14 +148,22 @@ int main() {
     double rx = -1, tx = -1;
     char mac[18];
 
+    struct logo *assigned_logo = &ethernet_logo;
+
     int interface_available = get_max_interface(interface, &rx, &tx);
     if(!interface_available) return 1;
+
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
     get_mac(mac, interface);
-    printf("\033[1m\033[36mINTERFACE\033[1m\033[37m: %s\n", interface);
-    printf("\033[1m\033[36m       RX\033[1m\033[37m: %s\n", rx_mu);
-    printf("\033[1m\033[36m       TX\033[1m\033[37m: %s\n", tx_mu);
-    printf("\033[1m\033[36m      MAC\033[1m\033[37m: %s\n", mac);
-    printf("\033[0m\033[37m");
+
+    printf("%s  %sINTERFACE%s: %s\n", assigned_logo->row0, BCYAN, BWHITE, interface);
+    printf("%s  %s      MAC%s: %s\n", assigned_logo->row1, BCYAN, BWHITE, mac);
+    printf("%s  %s       RX%s: %s\n", assigned_logo->row2, BCYAN, BWHITE, rx_mu);
+    printf("%s  %s       TX%s: %s\n", assigned_logo->row3, BCYAN, BWHITE, tx_mu);
+    printf("%s  %s         %s: %s\n", assigned_logo->row4, BCYAN, BWHITE, "");
+    printf("%s  %s         %s: %s\n", assigned_logo->row5, BCYAN, BWHITE, "");
+    printf("%s  %s         %s: %s\n", assigned_logo->row6, BCYAN, BWHITE, "");
+    printf("%s  %s         %s: %s\n", assigned_logo->row7, BCYAN, BWHITE, "");
+    printf("%s\n", NORMAL);
 }
