@@ -41,6 +41,17 @@ struct logo ethernet_logo = {
     "└───────────────┘"
 };
 
+struct logo ethernet_logo_alt = {
+    "|---------------|",
+    "|   |-------|   |",
+    "| |--       --| |",
+    "| |           | |",
+    "| | | | | | | | |",
+    "| | | | | | | | |",
+    "| ------------- |",
+    "-----------------"
+};
+
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
 
