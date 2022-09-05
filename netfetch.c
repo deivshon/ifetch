@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <netdb.h>
+#include <ifaddrs.h>
 
 #define INTERFACES_PATH "/sys/class/net"
 
@@ -9,6 +11,7 @@
 #define MAX_FILENAME_LENGTH 256
 
 enum transmission_type {TX, RX};
+enum ipv {IPv4, IPv6};
 
 #define BRED    "\033[1m\033[31m"
 #define BGREEN  "\033[1m\033[32m"
@@ -153,11 +156,42 @@ int to_formatted_bytes(char *dest, double bytes) {
     return 1;
 }
 
+int get_ip(char *dest, unsigned int dest_size, char *interface_name, enum ipv ip_version) {
+    struct ifaddrs *interface;
+    if(getifaddrs(&interface) == -1) return 0;
+
+    size_t info_size = ip_version == IPv4 ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+    unsigned int family = ip_version == IPv4 ? AF_INET : AF_INET6;
+
+    int interface_found = 0;
+    while(interface != NULL) {
+        if (interface->ifa_addr == NULL) {
+            interface = interface->ifa_next;
+            continue; 
+        }
+
+        int gni_res = !getnameinfo(interface->ifa_addr, info_size, dest, dest_size, NULL, 0, NI_NUMERICHOST);
+
+        if(gni_res && strcmp(interface->ifa_name, interface_name) == 0 && interface->ifa_addr->sa_family == family) {
+            interface_found = 1;
+            break;
+        }
+
+        interface = interface->ifa_next;
+    }
+
+    if(!interface) dest[0] = '\0';
+
+    return interface_found;
+}
+
 int main() {
     char interface[32];
     char rx_mu[16], tx_mu[16];
     double rx = -1, tx = -1;
     char mac[18];
+    char ip_addr_4[1024];
+    char ip_addr_6[1024];
 
     struct logo *assigned_logo = &ethernet_logo;
 
@@ -167,14 +201,16 @@ int main() {
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
     get_mac(mac, interface);
+    get_ip(ip_addr_4, 1024, interface, IPv4);
+    get_ip(ip_addr_6, 1024, interface, IPv6);
 
-    printf("%s  %sINTERFACE%s: %s\n", assigned_logo->row0, BCYAN, BWHITE, interface);
-    printf("%s  %s      MAC%s: %s\n", assigned_logo->row1, BCYAN, BWHITE, mac);
-    printf("%s  %s       RX%s: %s\n", assigned_logo->row2, BCYAN, BWHITE, rx_mu);
-    printf("%s  %s       TX%s: %s\n", assigned_logo->row3, BCYAN, BWHITE, tx_mu);
-    printf("%s  %s         %s: %s\n", assigned_logo->row4, BCYAN, BWHITE, "");
-    printf("%s  %s         %s: %s\n", assigned_logo->row5, BCYAN, BWHITE, "");
-    printf("%s  %s         %s: %s\n", assigned_logo->row6, BCYAN, BWHITE, "");
-    printf("%s  %s         %s: %s\n", assigned_logo->row7, BCYAN, BWHITE, "");
+    printf("%s%s  %sINTERFACE%s: %s\n", BWHITE, assigned_logo->row0, BCYAN, BWHITE, interface);
+    printf("%s%s  %s      MAC%s: %s\n", BWHITE, assigned_logo->row1, BCYAN, BWHITE, mac);
+    printf("%s%s  %s     IPv4%s: %s\n", BWHITE, assigned_logo->row2, BCYAN, BWHITE, ip_addr_4);
+    printf("%s%s  %s     IPv6%s: %s\n", BWHITE, assigned_logo->row3, BCYAN, BWHITE, ip_addr_6);
+    printf("%s%s  %s       RX%s: %s\n", BWHITE, assigned_logo->row4, BCYAN, BWHITE, rx_mu);
+    printf("%s%s  %s       TX%s: %s\n", BWHITE, assigned_logo->row5, BCYAN, BWHITE, tx_mu);
+    printf("%s%s\n", BWHITE, assigned_logo->row6);
+    printf("%s%s\n", BWHITE, assigned_logo->row7);
     printf("%s\n", NORMAL);
 }
