@@ -106,6 +106,8 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
             continue;
         }
         fgets(cur_opstate, 8, opstate_file);
+        fclose(opstate_file);
+
         if(strcmp(cur_opstate, "up\n")) // If interface is not up, continue
             continue;
 
@@ -120,6 +122,7 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
             res = 1;
         }
     }
+    closedir(interfaces);
 
     return res;
 }
