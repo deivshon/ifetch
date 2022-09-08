@@ -55,6 +55,17 @@ struct logo ethernet_logo_alt = {
     "-----------------"
 };
 
+struct logo wifi_logo = {
+    "   ___________   ",
+    "  /           \\  ",
+    " /  _________  \\ ",
+    "/  /         \\  \\",
+    "  /  _______  \\  ",
+    "    /       \\    ",
+    "       +++         ",
+    "       +++        "
+};
+
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
 
