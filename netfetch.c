@@ -62,8 +62,8 @@ struct logo wifi_logo = {
     "/  /         \\  \\",
     "  /  _______  \\  ",
     "    /       \\    ",
-    "       +++         ",
-    "       +++        "
+    "       ...       ",
+    "       ...       "
 };
 
 void line_from_file(char *dest, char *path) {
@@ -204,7 +204,7 @@ int main() {
     char ip_addr_4[1024];
     char ip_addr_6[1024];
 
-    struct logo *assigned_logo = &ethernet_logo;
+    struct logo *assigned_logo = &wifi_logo;
 
     int interface_available = get_max_interface(interface, &rx, &tx);
     if(!interface_available) return 1;
