@@ -10,6 +10,10 @@
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
 
+#define MAX_IPV6_NUM 2
+#define MAX_IPV4_NUM 1
+#define ROWS_NUM 8
+
 enum transmission_type {TX, RX};
 enum ipv {IPv4, IPv6};
 
@@ -23,14 +27,7 @@ enum ipv {IPv4, IPv6};
 #define NORMAL  "\033[0m\033[37m"
 
 struct logo {
-    char row0[64];
-    char row1[64];
-    char row2[64];
-    char row3[64];
-    char row4[64];
-    char row5[64];
-    char row6[64];
-    char row7[64];
+    char row[ROWS_NUM][64];
 };
 
 struct logo ethernet_logo = {
@@ -167,33 +164,37 @@ int to_formatted_bytes(char *dest, double bytes) {
     return 1;
 }
 
-int get_ip(char *dest, unsigned int dest_size, char *interface_name, enum ipv ip_version) {
-    struct ifaddrs *interface;
+int get_ip(char **dest, unsigned int dest_size, char *interface_name, enum ipv ip_version) {
+    struct ifaddrs *interface, *interface_head;
     if(getifaddrs(&interface) == -1) return 0;
+    interface_head = interface;
+
+    char current_ip[1024];
+    int c = 0;
 
     size_t info_size = ip_version == IPv4 ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
     unsigned int family = ip_version == IPv4 ? AF_INET : AF_INET6;
+    unsigned int max_ips = ip_version == IPv4 ? MAX_IPV4_NUM : MAX_IPV6_NUM;
 
-    int interface_found = 0;
-    while(interface != NULL) {
+    while(interface != NULL && c < max_ips) {
         if (interface->ifa_addr == NULL) {
             interface = interface->ifa_next;
             continue; 
         }
 
-        int gni_res = !getnameinfo(interface->ifa_addr, info_size, dest, dest_size, NULL, 0, NI_NUMERICHOST);
+        int gni_res = !getnameinfo(interface->ifa_addr, info_size, current_ip, 1024, NULL, 0, NI_NUMERICHOST);
 
         if(gni_res && strcmp(interface->ifa_name, interface_name) == 0 && interface->ifa_addr->sa_family == family) {
-            interface_found = 1;
-            break;
+            dest[c] = malloc(sizeof(char) * 1024);
+            strcpy(dest[c], current_ip);
+            c++;
         }
 
         interface = interface->ifa_next;
     }
 
-    if(!interface) dest[0] = '\0';
-
-    return interface_found;
+    freeifaddrs(interface_head);
+    return c;
 }
 
 int main() {
@@ -201,8 +202,10 @@ int main() {
     char rx_mu[16], tx_mu[16];
     double rx = -1, tx = -1;
     char mac[18];
-    char ip_addr_4[1024];
-    char ip_addr_6[1024];
+    char *ip_addr_4[MAX_IPV4_NUM];
+    int ipv4_num = 0;
+    char *ip_addr_6[MAX_IPV6_NUM];
+    int ipv6_num = 0;
 
     struct logo *assigned_logo = &wifi_logo;
 
@@ -212,16 +215,42 @@ int main() {
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
     get_mac(mac, interface);
-    get_ip(ip_addr_4, 1024, interface, IPv4);
-    get_ip(ip_addr_6, 1024, interface, IPv6);
+    ipv4_num = get_ip(ip_addr_4, 1024, interface, IPv4);
+    ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
 
-    printf("%s%s  %sINTERFACE%s: %s\n", BWHITE, assigned_logo->row0, BCYAN, BWHITE, interface);
-    printf("%s%s  %s      MAC%s: %s\n", BWHITE, assigned_logo->row1, BCYAN, BWHITE, mac);
-    printf("%s%s  %s     IPv4%s: %s\n", BWHITE, assigned_logo->row2, BCYAN, BWHITE, ip_addr_4);
-    printf("%s%s  %s     IPv6%s: %s\n", BWHITE, assigned_logo->row3, BCYAN, BWHITE, ip_addr_6);
-    printf("%s%s  %s       RX%s: %s\n", BWHITE, assigned_logo->row4, BCYAN, BWHITE, rx_mu);
-    printf("%s%s  %s       TX%s: %s\n", BWHITE, assigned_logo->row5, BCYAN, BWHITE, tx_mu);
-    printf("%s%s\n", BWHITE, assigned_logo->row6);
-    printf("%s%s\n", BWHITE, assigned_logo->row7);
+    printf("%s%s  %sINTERFACE%s: %s\n", BWHITE, assigned_logo->row[0], BCYAN, BWHITE, interface);
+    printf("%s%s  %s      MAC%s: %s\n", BWHITE, assigned_logo->row[1], BCYAN, BWHITE, mac);
+
+    int row_index = 2;
+
+    for(int i = 0; i < ipv4_num; i++) {
+        if(i == 0)
+            printf("%s%s  %s     IPv4%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
+        else
+            printf("%s%s  %s         %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
+        free(ip_addr_4[i]);
+        row_index++;
+    }
+
+    for(int i = 0; i < ipv6_num; i++) {
+        if(i == 0)
+            printf("%s%s  %s     IPv6%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
+        else
+            printf("%s%s  %s         %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
+        free(ip_addr_6[i]);
+        row_index++;
+    }
+
+    printf("%s%s  %s       RX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, rx_mu);
+    row_index++;
+    printf("%s%s  %s       TX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, tx_mu);
+    row_index++;
+
+    while(row_index < ROWS_NUM) {
+        printf("%s%s\n", BWHITE, assigned_logo->row[row_index]);
+        row_index++;
+
+    }
+
     printf("%s\n", NORMAL);
 }
