@@ -9,6 +9,8 @@
 
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
+#define MAX_ARGS 128
+#define MAX_ARG_SIZE 16
 
 #define MAX_IPV6_NUM 2
 #define MAX_IPV4_NUM 1
@@ -315,6 +317,54 @@ void handle_color_argument(char **dest, int *ai, int argc, char **argv) {
     }
 }
 
+void exit_config_error(char *wrong_arg) {
+    printf("Error reading config file: %s is too long, arguments can be at maximum %d characters long\n", wrong_arg, MAX_ARG_SIZE);
+    exit(EXIT_FAILURE);
+}
+
+void args_from_file(char **argv, int *argc, char *file_path) {
+    FILE *fs = fopen(file_path, "r");
+    if(fs == NULL) {
+        printf("No config file found at path %s\n", file_path);
+        exit(EXIT_FAILURE);
+    }
+
+    int i = 1;
+    char buf[MAX_ARG_SIZE * 2 + 1];
+    char *buf_split;
+
+    while(i < MAX_ARGS) {
+        if(!fgets(buf, MAX_ARG_SIZE * 2 + 1, fs)) break;
+        if(buf[0] == '#') continue;
+        buf[strcspn(buf, "\n")] = '\0';
+
+        buf_split = strtok(buf, "=");
+        if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
+
+        argv[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
+        strcpy(argv[i], buf_split);
+        i++;
+
+        buf_split = strtok(NULL, "=");
+        if(buf_split == NULL) continue;
+        if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
+    
+        argv[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
+        strcpy(argv[i], buf_split);
+        i++;
+    }
+
+    (*argc) = i;
+    fclose(fs);
+}
+
+void free_args(char **argv, int argc) {
+    for(int i = 0; i < argc; i++) {
+        free(argv[i]);
+    }
+    free(argv);
+}
+
 int main(int argc, char **argv) {
     char *logo_color = BWHITE;
     char *fields_color = BCYAN;
@@ -341,52 +391,65 @@ int main(int argc, char **argv) {
     char *ip_addr_6[MAX_IPV6_NUM];
     int ipv6_num = 0;    
 
+    char **args;
+    int args_num;
+    
+    args = argv;
+    args_num = argc;
+
     int ai = 1;
-    while(ai < argc) {
+    while(ai < args_num) {
         // Case for interface
-        if(argv[ai][0] != '-') {
-            interface = argv[ai];
+        if(args[ai][0] != '-' || strcmp("-i", args[ai]) == 0) {
+            if(args[ai][0] == '-') {
+                if(ai + 1 >= args_num) {
+                    printf("You must provide an interface after the -i option\n");
+                    exit(EXIT_FAILURE);
+                }
+                ai++;
+            }
+            interface = args[ai];
             if(!interface_exists(interface)) {
                 printf("No interface named %s exists\n", interface);
                 exit(EXIT_FAILURE);
             }
         }
         // Other options
-        else if(strcmp("-fc", argv[ai]) == 0) {
-            handle_color_argument(&fields_color, &ai, argc, argv);
+        else if(strcmp("-fc", args[ai]) == 0) {
+            handle_color_argument(&fields_color, &ai, args_num, args);
         }
-        else if(strcmp("-vc", argv[ai]) == 0) {
-            handle_color_argument(&values_color, &ai, argc, argv);
+        else if(strcmp("-vc", args[ai]) == 0) {
+            handle_color_argument(&values_color, &ai, args_num, args);
         }
-        else if(strcmp("-sc", argv[ai]) == 0) {
-            handle_color_argument(&sep_color, &ai, argc, argv);
+        else if(strcmp("-sc", args[ai]) == 0) {
+            handle_color_argument(&sep_color, &ai, args_num, args);
         }
-        else if(strcmp("-lc", argv[ai]) == 0) {
-            handle_color_argument(&logo_color, &ai, argc, argv);
+        else if(strcmp("-lc", args[ai]) == 0) {
+            handle_color_argument(&logo_color, &ai, args_num, args);
         }
-        else if(strcmp("-ns", argv[ai]) == 0) {
+        else if(strcmp("-ns", args[ai]) == 0) {
             strcpy(sep, "");
             strcpy(padding, " ");
         }
-        else if(strcmp("-s", argv[ai]) == 0) {
-            if(ai + 1 >= argc) {
+        else if(strcmp("-s", args[ai]) == 0) {
+            if(ai + 1 >= args_num) {
                 printf("You must provide a separator to use after the -s option\n");
                 exit(EXIT_FAILURE);
             }
 
             ai++;
-            if(strlen(argv[ai]) >= 9) {
+            if(strlen(args[ai]) >= 9) {
                 printf("The separator must be at maximum 8 characters long\n");
                 exit(EXIT_FAILURE);
             }
-            strcpy(sep, argv[ai]);
+            strcpy(sep, args[ai]);
             sprintf(padding, "%*s", strlen(sep) + 1, "");
         }
-        else if(strcmp("-ascii", argv[ai]) == 0) {
+        else if(strcmp("-ascii", args[ai]) == 0) {
             ascii_strict = 1;
         }
         else {
-            printf("Uncrecognized argument: %s\n", argv[ai]);
+            printf("Uncrecognized argument: %s\n", args[ai]);
             exit(EXIT_FAILURE);
         }
         ai++;
