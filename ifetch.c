@@ -277,7 +277,7 @@ int interface_exists(char *interface) {
 
 void handle_color_argument(char **dest, int *ai, int argc, char **argv) {
     if((*ai) + 1 >= argc) {
-        printf("You must provide a color after the -c option\n");
+        printf("You must provide a color after the %s option\n", argv[*ai]);
         exit(EXIT_FAILURE);
     }
 
