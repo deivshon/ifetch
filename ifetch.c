@@ -200,6 +200,19 @@ int get_ip(char **dest, unsigned int dest_size, char *interface_name, enum ipv i
     return c;
 }
 
+int interface_exists(char *interface) {
+    int result;
+
+    char ifdir_path[MAX_PATH_LENGTH];
+    sprintf(ifdir_path, "%s/%s", INTERFACES_PATH, interface);
+
+    DIR *ifdir = opendir(ifdir_path);
+    result = ifdir != NULL;
+    closedir(ifdir);
+
+    return result;
+}
+
 int main() {
     char interface[32];
     char rx_mu[16], tx_mu[16];
