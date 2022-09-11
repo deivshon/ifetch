@@ -49,6 +49,17 @@ struct logo ethernet_logo = {
     "└───────────────┘"
 };
 
+struct logo ethernet_logo_alt = {
+    "+---------------+",
+    "|   +-------+   |",
+    "| +--       --+ |",
+    "| |           | |",
+    "| | | | | | | | |",
+    "| | | | | | | | |",
+    "| +-----------+ |",
+    "+---------------+"
+};
+
 struct logo wifi_logo = {
     "   ___________   ",
     "  /           \\  ",
@@ -60,10 +71,10 @@ struct logo wifi_logo = {
     "       ...       "
 };
 
-void assign_logo(struct logo **dest, char *interface) {
+void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
     switch(interface[0]) {
         case 'e':
-            *dest = &ethernet_logo;
+            *dest = ascii_strict ? &ethernet_logo_alt : &ethernet_logo;
             break;
         case 'w':
             *dest = &wifi_logo;
@@ -126,7 +137,6 @@ int assign_color(char **dest, char code) {
 
     return assigned;
 }
-
 
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
@@ -300,6 +310,9 @@ int main(int argc, char **argv) {
     char *values_color = BWHITE;
     char *sep_color = BWHITE;
 
+    struct logo *assigned_logo;
+    int ascii_strict = 0;
+
     char sep[9] = ":";
     char padding[10] = "  ";
 
@@ -358,6 +371,9 @@ int main(int argc, char **argv) {
             strcpy(sep, argv[ai]);
             sprintf(padding, "%s%*s", "", strlen(sep) + 1, "");
         }
+        else if(strcmp("-ascii", argv[ai]) == 0) {
+            ascii_strict = 1;
+        }
         else {
             printf("Uncrecognized argument: %s\n", argv[ai]);
             exit(EXIT_FAILURE);
@@ -379,14 +395,12 @@ int main(int argc, char **argv) {
         tx = get_bytes(interface, TX);
     }
 
-    struct logo *assigned_logo;
-
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
     get_mac(mac, interface);
     ipv4_num = get_ip(ip_addr_4, 1024, interface, IPv4);
     ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
-    assign_logo(&assigned_logo, interface);
+    assign_logo(&assigned_logo, interface, ascii_strict);
 
 
     printf("%s%s%s  INTERFACE%s%s%s %s\n", logo_color, assigned_logo->row[0], fields_color, sep_color, sep, values_color, interface);
