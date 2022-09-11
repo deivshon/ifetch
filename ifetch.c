@@ -369,7 +369,7 @@ int main(int argc, char **argv) {
                 exit(EXIT_FAILURE);
             }
             strcpy(sep, argv[ai]);
-            sprintf(padding, "%s%*s", "", strlen(sep) + 1, "");
+            sprintf(padding, "%*s", strlen(sep) + 1, "");
         }
         else if(strcmp("-ascii", argv[ai]) == 0) {
             ascii_strict = 1;
