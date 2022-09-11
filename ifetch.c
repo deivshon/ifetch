@@ -222,32 +222,32 @@ int main() {
     ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
     assign_logo(&assigned_logo, interface);
 
-    printf("%s%s  %sINTERFACE%s: %s\n", BWHITE, assigned_logo->row[0], BCYAN, BWHITE, interface);
-    printf("%s%s  %s      MAC%s: %s\n", BWHITE, assigned_logo->row[1], BCYAN, BWHITE, mac);
+    printf("%s%s%s  INTERFACE%s: %s\n", BWHITE, assigned_logo->row[0], BCYAN, BWHITE, interface);
+    printf("%s%s%s        MAC%s: %s\n", BWHITE, assigned_logo->row[1], BCYAN, BWHITE, mac);
 
     int row_index = 2;
 
     for(int i = 0; i < ipv4_num; i++) {
         if(i == 0)
-            printf("%s%s  %s     IPv4%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
+            printf("%s%s%s       IPv4%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
         else
-            printf("%s%s  %s         %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
+            printf("%s%s%s           %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
         free(ip_addr_4[i]);
         row_index++;
     }
 
     for(int i = 0; i < ipv6_num; i++) {
         if(i == 0)
-            printf("%s%s  %s     IPv6%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
+            printf("%s%s%s       IPv6%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
         else
-            printf("%s%s  %s         %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
+            printf("%s%s%s           %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
         free(ip_addr_6[i]);
         row_index++;
     }
 
-    printf("%s%s  %s       RX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, rx_mu);
+    printf("%s%s%s         RX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, rx_mu);
     row_index++;
-    printf("%s%s  %s       TX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, tx_mu);
+    printf("%s%s%s         TX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, tx_mu);
     row_index++;
 
     while(row_index < ROWS_NUM) {
