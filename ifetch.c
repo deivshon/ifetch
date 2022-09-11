@@ -16,17 +16,23 @@
 
 #define INTERFACE_SIZE 32
 
+#define BRED    "\033[1m\033[31m" // Code: 'R'
+#define BGREEN  "\033[1m\033[32m" // Code: 'G'
+#define BYELLOW "\033[1m\033[33m" // Code: 'Y'
+#define BBLUE   "\033[1m\033[34m" // Code: 'B'
+#define BMAG    "\033[1m\033[35m" // Code: 'M'
+#define BCYAN   "\033[1m\033[36m" // Code: 'C'
+#define BWHITE  "\033[1m\033[37m" // Code: 'W'
+#define RED     "\033[0m\033[31m" // Code: 'r'
+#define GREEN   "\033[0m\033[32m" // Code: 'g'
+#define YELLOW  "\033[0m\033[33m" // Code: 'y'
+#define BLUE    "\033[0m\033[34m" // Code: 'b'
+#define MAG     "\033[0m\033[35m" // Code: 'm'
+#define CYAN    "\033[0m\033[36m" // Code: 'c'
+#define WHITE   "\033[0m\033[37m" // Code: 'w'
+
 enum transmission_type {TX, RX};
 enum ipv {IPv4, IPv6};
-
-#define BRED    "\033[1m\033[31m" // Code: 'r'
-#define BGREEN  "\033[1m\033[32m" // Code: 'g'
-#define BYELLOW "\033[1m\033[33m" // Code: 'y'
-#define BBLUE   "\033[1m\033[34m" // Code: 'b'
-#define BMAG    "\033[1m\033[35m" // Code: 'm'
-#define BCYAN   "\033[1m\033[36m" // Code: 'c'
-#define BWHITE  "\033[1m\033[37m" // Code: 'w'
-#define NORMAL  "\033[0m\033[37m" // code: 'n'
 
 struct logo {
     char row[ROWS_NUM][64];
@@ -71,29 +77,47 @@ void assign_logo(struct logo **dest, char *interface) {
 int assign_color(char **dest, char code) {
     int assigned = 1;
     switch(code) {
-        case 'r':
+        case 'R':
             *dest = BRED;
             break;
-        case 'g':
+        case 'G':
             *dest = BGREEN;
             break;
-        case 'y':
+        case 'Y':
             *dest = BYELLOW;
             break;
-        case 'b':
+        case 'B':
             *dest = BBLUE;
             break;
-        case 'm':
+        case 'M':
             *dest = BMAG;
             break;
-        case 'c':
+        case 'C':
             *dest = BCYAN;
             break;
-        case 'w':
+        case 'W':
             *dest = BWHITE;
             break;
-        case 'n':
-            *dest = NORMAL;
+        case 'r':
+            *dest = RED;
+            break;
+        case 'g':
+            *dest = GREEN;
+            break;
+        case 'y':
+            *dest = YELLOW;
+            break;
+        case 'b':
+            *dest = BLUE;
+            break;
+        case 'm':
+            *dest = MAG;
+            break;
+        case 'c':
+            *dest = CYAN;
+            break;
+        case 'w':
+            *dest = WHITE;
             break;
         default:
             assigned = 0;
@@ -401,5 +425,5 @@ int main(int argc, char **argv) {
 
     }
 
-    printf("%s\n", NORMAL);
+    printf("%s\n", WHITE);
 }
