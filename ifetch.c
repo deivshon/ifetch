@@ -41,17 +41,6 @@ struct logo ethernet_logo = {
     "└───────────────┘"
 };
 
-struct logo ethernet_logo_alt = {
-    "|---------------|",
-    "|   |-------|   |",
-    "| |--       --| |",
-    "| |           | |",
-    "| | | | | | | | |",
-    "| | | | | | | | |",
-    "| ------------- |",
-    "-----------------"
-};
-
 struct logo wifi_logo = {
     "   ___________   ",
     "  /           \\  ",
@@ -62,6 +51,20 @@ struct logo wifi_logo = {
     "       ...       ",
     "       ...       "
 };
+
+void assign_logo(struct logo **dest, char *interface) {
+    switch(interface[0]) {
+        case 'e':
+            *dest = &ethernet_logo;
+            break;
+        case 'w':
+            *dest = &wifi_logo;
+            break;
+        default:
+            *dest = &ethernet_logo;
+            break;
+    }
+}
 
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
@@ -207,7 +210,7 @@ int main() {
     char *ip_addr_6[MAX_IPV6_NUM];
     int ipv6_num = 0;
 
-    struct logo *assigned_logo = &wifi_logo;
+    struct logo *assigned_logo;
 
     int interface_available = get_max_interface(interface, &rx, &tx);
     if(!interface_available) return 1;
@@ -217,6 +220,7 @@ int main() {
     get_mac(mac, interface);
     ipv4_num = get_ip(ip_addr_4, 1024, interface, IPv4);
     ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
+    assign_logo(&assigned_logo, interface);
 
     printf("%s%s  %sINTERFACE%s: %s\n", BWHITE, assigned_logo->row[0], BCYAN, BWHITE, interface);
     printf("%s%s  %s      MAC%s: %s\n", BWHITE, assigned_logo->row[1], BCYAN, BWHITE, mac);
