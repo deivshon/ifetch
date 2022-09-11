@@ -213,8 +213,9 @@ int interface_exists(char *interface) {
     return result;
 }
 
-int main() {
-    char interface[32];
+int main(int argc, char **argv) {
+    char *interface;
+    int no_args = 0;
     char rx_mu[16], tx_mu[16];
     double rx = -1, tx = -1;
     char mac[18];
@@ -224,9 +225,26 @@ int main() {
     int ipv6_num = 0;
 
     struct logo *assigned_logo;
+    if(argc == 1) {
+        no_args = 1;
+        interface = malloc(sizeof(char) * 32);
+        int interface_available = get_max_interface(interface, &rx, &tx);
+        if(!interface_available) exit(EXIT_FAILURE);
+    }
+    else if(argc == 2) {
+        if(!interface_exists(argv[1])) {
+            printf("No interface named %s exists\n", argv[1]);
+            exit(EXIT_FAILURE);
+        }
 
-    int interface_available = get_max_interface(interface, &rx, &tx);
-    if(!interface_available) return 1;
+        interface = argv[1];
+        rx = get_bytes(interface, RX);
+        tx = get_bytes(interface, TX);
+    }
+    else {
+        printf("Too many arguments!\n");
+        exit(EXIT_FAILURE);
+    }
 
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
@@ -235,7 +253,10 @@ int main() {
     ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
     assign_logo(&assigned_logo, interface);
 
+
     printf("%s%s%s  INTERFACE%s: %s\n", BWHITE, assigned_logo->row[0], BCYAN, BWHITE, interface);
+    if(no_args) free(interface);
+
     printf("%s%s%s        MAC%s: %s\n", BWHITE, assigned_logo->row[1], BCYAN, BWHITE, mac);
 
     int row_index = 2;
