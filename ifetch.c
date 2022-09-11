@@ -71,6 +71,17 @@ struct logo wifi_logo = {
     "       ...       "
 };
 
+struct logo default_logo = {
+    "            +---+",
+    "            |   |",
+    "        +---+   |",
+    "        |   |   |",
+    "    +---+   |   |",
+    "    |   |   |   |",
+    "+---+   |   |   |",
+    "|___|___|___|___|"
+};
+
 void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
     switch(interface[0]) {
         case 'e':
@@ -80,7 +91,7 @@ void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
             *dest = &wifi_logo;
             break;
         default:
-            *dest = &ethernet_logo;
+            *dest = &default_logo;
             break;
     }
 }
