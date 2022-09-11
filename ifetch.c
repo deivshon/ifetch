@@ -14,17 +14,19 @@
 #define MAX_IPV4_NUM 1
 #define ROWS_NUM 8
 
+#define INTERFACE_SIZE 32
+
 enum transmission_type {TX, RX};
 enum ipv {IPv4, IPv6};
 
-#define BRED    "\033[1m\033[31m"
-#define BGREEN  "\033[1m\033[32m"
-#define BYELLOW "\033[1m\033[33m"
-#define BBLUE   "\033[1m\033[34m"
-#define BMAG    "\033[1m\033[35m"
-#define BCYAN   "\033[1m\033[36m"
-#define BWHITE  "\033[1m\033[37m"
-#define NORMAL  "\033[0m\033[37m"
+#define BRED    "\033[1m\033[31m" // Code: 'r'
+#define BGREEN  "\033[1m\033[32m" // Code: 'g'
+#define BYELLOW "\033[1m\033[33m" // Code: 'y'
+#define BBLUE   "\033[1m\033[34m" // Code: 'b'
+#define BMAG    "\033[1m\033[35m" // Code: 'm'
+#define BCYAN   "\033[1m\033[36m" // Code: 'c'
+#define BWHITE  "\033[1m\033[37m" // Code: 'w'
+#define NORMAL  "\033[0m\033[37m" // code: 'n'
 
 struct logo {
     char row[ROWS_NUM][64];
@@ -65,6 +67,42 @@ void assign_logo(struct logo **dest, char *interface) {
             break;
     }
 }
+
+int assign_color(char **dest, char code) {
+    int assigned = 1;
+    switch(code) {
+        case 'r':
+            *dest = BRED;
+            break;
+        case 'g':
+            *dest = BGREEN;
+            break;
+        case 'y':
+            *dest = BYELLOW;
+            break;
+        case 'b':
+            *dest = BBLUE;
+            break;
+        case 'm':
+            *dest = BMAG;
+            break;
+        case 'c':
+            *dest = BCYAN;
+            break;
+        case 'w':
+            *dest = BWHITE;
+            break;
+        case 'n':
+            *dest = NORMAL;
+            break;
+        default:
+            assigned = 0;
+            break;
+    }
+
+    return assigned;
+}
+
 
 void line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
@@ -213,38 +251,111 @@ int interface_exists(char *interface) {
     return result;
 }
 
+void handle_color_argument(char **dest, int *ai, int argc, char **argv) {
+    if((*ai) + 1 >= argc) {
+        printf("You must provide a color after the -c option\n");
+        exit(EXIT_FAILURE);
+    }
+
+    (*ai)++;
+    if(strlen(argv[*ai]) > 1) {
+        printf("Invalid color\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int assigned = assign_color(&(*dest), argv[*ai][0]);
+    if(!assigned) {
+        printf("%s is not a valid color code\n", argv[*ai]);
+        exit(EXIT_FAILURE);
+    }
+}
+
 int main(int argc, char **argv) {
-    char *interface;
-    int no_args = 0;
-    char rx_mu[16], tx_mu[16];
+    char *logo_color = BWHITE;
+    char *fields_color = BCYAN;
+    char *values_color = BWHITE;
+    char *sep_color = BWHITE;
+
+    char sep[9] = ":";
+    char padding[10] = "  ";
+
+    char *interface = NULL;
+    int no_if_specified = 0;
+
     double rx = -1, tx = -1;
+    char rx_mu[16], tx_mu[16];
+
     char mac[18];
+
     char *ip_addr_4[MAX_IPV4_NUM];
     int ipv4_num = 0;
-    char *ip_addr_6[MAX_IPV6_NUM];
-    int ipv6_num = 0;
 
-    struct logo *assigned_logo;
-    if(argc == 1) {
-        no_args = 1;
-        interface = malloc(sizeof(char) * 32);
-        int interface_available = get_max_interface(interface, &rx, &tx);
-        if(!interface_available) exit(EXIT_FAILURE);
-    }
-    else if(argc == 2) {
-        if(!interface_exists(argv[1])) {
-            printf("No interface named %s exists\n", argv[1]);
+    char *ip_addr_6[MAX_IPV6_NUM];
+    int ipv6_num = 0;    
+
+    int ai = 1;
+    while(ai < argc) {
+        // Case for interface
+        if(argv[ai][0] != '-') {
+            interface = argv[ai];
+            if(!interface_exists(interface)) {
+                printf("No interface named %s exists\n", interface);
+                exit(EXIT_FAILURE);
+            }
+        }
+        // Other options
+        else if(strcmp("-fc", argv[ai]) == 0) {
+            handle_color_argument(&fields_color, &ai, argc, argv);
+        }
+        else if(strcmp("-vc", argv[ai]) == 0) {
+            handle_color_argument(&values_color, &ai, argc, argv);
+        }
+        else if(strcmp("-sc", argv[ai]) == 0) {
+            handle_color_argument(&sep_color, &ai, argc, argv);
+        }
+        else if(strcmp("-lc", argv[ai]) == 0) {
+            handle_color_argument(&logo_color, &ai, argc, argv);
+        }
+        else if(strcmp("-ns", argv[ai]) == 0) {
+            strcpy(sep, "");
+            strcpy(padding, " ");
+        }
+        else if(strcmp("-s", argv[ai]) == 0) {
+            if(ai + 1 >= argc) {
+                printf("You must provide a separator to use after the -s option\n");
+                exit(EXIT_FAILURE);
+            }
+
+            ai++;
+            if(strlen(argv[ai]) >= 9) {
+                printf("The separator must be at maximum 8 characters long\n");
+                exit(EXIT_FAILURE);
+            }
+            strcpy(sep, argv[ai]);
+            sprintf(padding, "%s%*s", "", strlen(sep) + 1, "");
+        }
+        else {
+            printf("Uncrecognized argument: %s\n", argv[ai]);
             exit(EXIT_FAILURE);
         }
+        ai++;
+    }
 
-        interface = argv[1];
+    if(interface == NULL) {
+        no_if_specified = 1;
+        interface = malloc(sizeof(char) * 32);
+        int interface_available = get_max_interface(interface, &rx, &tx);
+        if(!interface_available) {
+            printf("No interface available\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
         rx = get_bytes(interface, RX);
         tx = get_bytes(interface, TX);
     }
-    else {
-        printf("Too many arguments!\n");
-        exit(EXIT_FAILURE);
-    }
+
+    struct logo *assigned_logo;
 
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
@@ -254,38 +365,38 @@ int main(int argc, char **argv) {
     assign_logo(&assigned_logo, interface);
 
 
-    printf("%s%s%s  INTERFACE%s: %s\n", BWHITE, assigned_logo->row[0], BCYAN, BWHITE, interface);
-    if(no_args) free(interface);
+    printf("%s%s%s  INTERFACE%s%s%s %s\n", logo_color, assigned_logo->row[0], fields_color, sep_color, sep, values_color, interface);
+    if(no_if_specified) free(interface);
 
-    printf("%s%s%s        MAC%s: %s\n", BWHITE, assigned_logo->row[1], BCYAN, BWHITE, mac);
+    printf("%s%s%s        MAC%s%s%s %s\n", logo_color, assigned_logo->row[1], fields_color, sep_color, sep, values_color, mac);
 
     int row_index = 2;
 
     for(int i = 0; i < ipv4_num; i++) {
         if(i == 0)
-            printf("%s%s%s       IPv4%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
+            printf("%s%s%s       IPv4%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, ip_addr_4[i]);
         else
-            printf("%s%s%s           %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_4[i]);
+            printf("%s%s%s           %s%s%s\n", logo_color, assigned_logo->row[row_index], fields_color, values_color, padding, ip_addr_4[i]);
         free(ip_addr_4[i]);
         row_index++;
     }
 
     for(int i = 0; i < ipv6_num; i++) {
         if(i == 0)
-            printf("%s%s%s       IPv6%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
+            printf("%s%s%s       IPv6%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, ip_addr_6[i]);
         else
-            printf("%s%s%s           %s  %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, ip_addr_6[i]);
+            printf("%s%s%s           %s%s%s\n", logo_color, assigned_logo->row[row_index], fields_color, values_color, padding, ip_addr_6[i]);
         free(ip_addr_6[i]);
         row_index++;
     }
 
-    printf("%s%s%s         RX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, rx_mu);
+    printf("%s%s%s         RX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, rx_mu);
     row_index++;
-    printf("%s%s%s         TX%s: %s\n", BWHITE, assigned_logo->row[row_index], BCYAN, BWHITE, tx_mu);
+    printf("%s%s%s         TX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, tx_mu);
     row_index++;
 
     while(row_index < ROWS_NUM) {
-        printf("%s%s\n", BWHITE, assigned_logo->row[row_index]);
+        printf("%s%s\n", logo_color, assigned_logo->row[row_index]);
         row_index++;
 
     }
