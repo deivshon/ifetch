@@ -365,6 +365,69 @@ void free_args(char **argv, int argc) {
     free(argv);
 }
 
+void handle_args(char **argv, int argc, char **interface, char **logo_color, \
+                 char **fields_color, char **values_color, char **sep_color, \
+                 char *sep, char *padding, int *ascii_strict)
+{
+    int ai = 1;
+    while(ai < argc) {
+        // Case for interface
+        if(argv[ai][0] != '-' || strcmp("-i", argv[ai]) == 0) {
+            if(argv[ai][0] == '-') {
+                if(ai + 1 >= argc) {
+                    printf("You must provide an interface after the -i option\n");
+                    exit(EXIT_FAILURE);
+                }
+                ai++;
+            }
+            (*interface) = argv[ai];
+            if(!interface_exists(*interface)) {
+                printf("No interface named %s exists\n", *interface);
+                exit(EXIT_FAILURE);
+            }
+        }
+        // Other options
+        else if(strcmp("-fc", argv[ai]) == 0) {
+            handle_color_argument(fields_color, &ai, argc, argv);
+        }
+        else if(strcmp("-vc", argv[ai]) == 0) {
+            handle_color_argument(values_color, &ai, argc, argv);
+        }
+        else if(strcmp("-sc", argv[ai]) == 0) {
+            handle_color_argument(sep_color, &ai, argc, argv);
+        }
+        else if(strcmp("-lc", argv[ai]) == 0) {
+            handle_color_argument(logo_color, &ai, argc, argv);
+        }
+        else if(strcmp("-ns", argv[ai]) == 0) {
+            strcpy(sep, "");
+            strcpy(padding, " ");
+        }
+        else if(strcmp("-s", argv[ai]) == 0) {
+            if(ai + 1 >= argc) {
+                printf("You must provide a separator to use after the -s option\n");
+                exit(EXIT_FAILURE);
+            }
+
+            ai++;
+            if(strlen(argv[ai]) >= 9) {
+                printf("The separator must be at maximum 8 characters long\n");
+                exit(EXIT_FAILURE);
+            }
+            strcpy(sep, argv[ai]);
+            sprintf(padding, "%*s", strlen(sep) + 1, "");
+        }
+        else if(strcmp("-ascii", argv[ai]) == 0) {
+            (*ascii_strict) = 1;
+        }
+        else {
+            printf("Uncrecognized argument: %s\n", argv[ai]);
+            exit(EXIT_FAILURE);
+        }
+        ai++;
+    }
+}
+
 int main(int argc, char **argv) {
     char *logo_color = BWHITE;
     char *fields_color = BCYAN;
@@ -397,63 +460,8 @@ int main(int argc, char **argv) {
     args = argv;
     args_num = argc;
 
-    int ai = 1;
-    while(ai < args_num) {
-        // Case for interface
-        if(args[ai][0] != '-' || strcmp("-i", args[ai]) == 0) {
-            if(args[ai][0] == '-') {
-                if(ai + 1 >= args_num) {
-                    printf("You must provide an interface after the -i option\n");
-                    exit(EXIT_FAILURE);
-                }
-                ai++;
-            }
-            interface = args[ai];
-            if(!interface_exists(interface)) {
-                printf("No interface named %s exists\n", interface);
-                exit(EXIT_FAILURE);
-            }
-        }
-        // Other options
-        else if(strcmp("-fc", args[ai]) == 0) {
-            handle_color_argument(&fields_color, &ai, args_num, args);
-        }
-        else if(strcmp("-vc", args[ai]) == 0) {
-            handle_color_argument(&values_color, &ai, args_num, args);
-        }
-        else if(strcmp("-sc", args[ai]) == 0) {
-            handle_color_argument(&sep_color, &ai, args_num, args);
-        }
-        else if(strcmp("-lc", args[ai]) == 0) {
-            handle_color_argument(&logo_color, &ai, args_num, args);
-        }
-        else if(strcmp("-ns", args[ai]) == 0) {
-            strcpy(sep, "");
-            strcpy(padding, " ");
-        }
-        else if(strcmp("-s", args[ai]) == 0) {
-            if(ai + 1 >= args_num) {
-                printf("You must provide a separator to use after the -s option\n");
-                exit(EXIT_FAILURE);
-            }
-
-            ai++;
-            if(strlen(args[ai]) >= 9) {
-                printf("The separator must be at maximum 8 characters long\n");
-                exit(EXIT_FAILURE);
-            }
-            strcpy(sep, args[ai]);
-            sprintf(padding, "%*s", strlen(sep) + 1, "");
-        }
-        else if(strcmp("-ascii", args[ai]) == 0) {
-            ascii_strict = 1;
-        }
-        else {
-            printf("Uncrecognized argument: %s\n", args[ai]);
-            exit(EXIT_FAILURE);
-        }
-        ai++;
-    }
+    handle_args(args, args_num, &interface, &logo_color, &fields_color, \
+                &values_color, &sep_color, sep, padding, &ascii_strict);
 
     if(interface == NULL) {
         no_if_specified = 1;
