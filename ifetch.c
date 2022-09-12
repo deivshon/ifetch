@@ -322,14 +322,13 @@ void exit_config_error(char *wrong_arg) {
     exit(EXIT_FAILURE);
 }
 
-void args_from_file(char ***argv, int *argc, char *file_path) {
-    (*argv) = calloc(MAX_ARGS, sizeof(char *));
-
+int args_from_file(char ***argv, int *argc, char *file_path) {
     FILE *fs = fopen(file_path, "r");
     if(fs == NULL) {
-        printf("No config file found at path %s\n", file_path);
-        exit(EXIT_FAILURE);
+        return 0;
     }
+
+    (*argv) = calloc(MAX_ARGS, sizeof(char *));
 
     int i = 1;
     char buf[MAX_ARG_SIZE * 2 + 1];
@@ -358,6 +357,7 @@ void args_from_file(char ***argv, int *argc, char *file_path) {
 
     (*argc) = i;
     fclose(fs);
+    return 1;
 }
 
 void free_args(char **argv, int argc) {
@@ -458,7 +458,7 @@ int main(int argc, char **argv) {
 
     char **args;
     int args_num;
-    
+
     args = argv;
     args_num = argc;
 
