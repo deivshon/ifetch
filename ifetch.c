@@ -301,27 +301,29 @@ int interface_exists(char *interface) {
     return result;
 }
 
-void handle_color_argument(char **dest, int *ai, int argc, char **argv) {
+void handle_color_argument(char **dest, int *ai, int argc, \
+                           char **argv, char *error_premise)
+{
     if((*ai) + 1 >= argc) {
-        printf("You must provide a color after the %s option\n", argv[*ai]);
+        printf("%sYou must provide a color after the %s option\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
     }
 
     (*ai)++;
     if(strlen(argv[*ai]) > 1) {
-        printf("Invalid color\n");
+        printf("%s%s is not a valid color code\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
     }
 
     int assigned = assign_color(dest, argv[*ai][0]);
     if(!assigned) {
-        printf("%s is not a valid color code\n", argv[*ai]);
+        printf("%s%s is not a valid color code\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
     }
 }
 
 void exit_config_error(char *wrong_arg) {
-    printf("Error reading config file: %s is too long, arguments can be at maximum %d characters long\n", wrong_arg, MAX_ARG_SIZE);
+    printf("Error in config file\n%s is too long, arguments from config files can be at maximum %d characters long\n", wrong_arg, MAX_ARG_SIZE);
     exit(EXIT_FAILURE);
 }
 
@@ -370,39 +372,42 @@ void free_args(char **argv, int argc) {
     free(argv);
 }
 
-void handle_args(char **argv, int argc, char **interface, char **logo_color, \
-                 char **fields_color, char **values_color, char **sep_color, \
-                 char *sep, char *padding, int *ascii_strict)
+void handle_args(char **argv, int argc, int from_config,    \
+                 char **interface, char **logo_color,       \
+                 char **fields_color, char **values_color,  \
+                 char **sep_color, char *sep,               \
+                 char *padding, int *ascii_strict)
 {
+    char *error_premise = from_config ? "Error in config file\n" : "";
     int ai = 1;
     while(ai < argc) {
         // Case for interface
         if(argv[ai][0] != '-' || strcmp("-i", argv[ai]) == 0) {
             if(argv[ai][0] == '-') {
                 if(ai + 1 >= argc) {
-                    printf("You must provide an interface after the -i option\n");
+                    printf("%sYou must provide an interface after the -i option\n", error_premise);
                     exit(EXIT_FAILURE);
                 }
                 ai++;
             }
             (*interface) = argv[ai];
             if(!interface_exists(*interface)) {
-                printf("No interface named %s exists\n", *interface);
+                printf("%sNo interface named %s exists\n", error_premise, *interface);
                 exit(EXIT_FAILURE);
             }
         }
         // Other options
         else if(strcmp("-fc", argv[ai]) == 0) {
-            handle_color_argument(fields_color, &ai, argc, argv);
+            handle_color_argument(fields_color, &ai, argc, argv, error_premise);
         }
         else if(strcmp("-vc", argv[ai]) == 0) {
-            handle_color_argument(values_color, &ai, argc, argv);
+            handle_color_argument(values_color, &ai, argc, argv, error_premise);
         }
         else if(strcmp("-sc", argv[ai]) == 0) {
-            handle_color_argument(sep_color, &ai, argc, argv);
+            handle_color_argument(sep_color, &ai, argc, argv, error_premise);
         }
         else if(strcmp("-lc", argv[ai]) == 0) {
-            handle_color_argument(logo_color, &ai, argc, argv);
+            handle_color_argument(logo_color, &ai, argc, argv, error_premise);
         }
         else if(strcmp("-ns", argv[ai]) == 0) {
             strcpy(sep, "");
@@ -410,13 +415,13 @@ void handle_args(char **argv, int argc, char **interface, char **logo_color, \
         }
         else if(strcmp("-s", argv[ai]) == 0) {
             if(ai + 1 >= argc) {
-                printf("You must provide a separator to use after the -s option\n");
+                printf("%sYou must provide a separator to use after the -s option\n", error_premise);
                 exit(EXIT_FAILURE);
             }
 
             ai++;
             if(strlen(argv[ai]) >= 9) {
-                printf("The separator must be at maximum 8 characters long\n");
+                printf("%sThe separator must be at maximum 8 characters long\n", error_premise);
                 exit(EXIT_FAILURE);
             }
             strcpy(sep, argv[ai]);
@@ -426,7 +431,7 @@ void handle_args(char **argv, int argc, char **interface, char **logo_color, \
             (*ascii_strict) = 1;
         }
         else {
-            printf("Uncrecognized argument: %s\n", argv[ai]);
+            printf("%sUncrecognized argument: %s\n", error_premise, argv[ai]);
             exit(EXIT_FAILURE);
         }
         ai++;
@@ -467,7 +472,7 @@ int main(int argc, char **argv) {
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
-        handle_args(args, args_num, &interface, &logo_color, &fields_color, \
+        handle_args(args, args_num, 1, &interface, &logo_color, &fields_color, \
                     &values_color, &sep_color, sep, padding, &ascii_strict);
         free_args(args, args_num);
     }
@@ -475,7 +480,7 @@ int main(int argc, char **argv) {
     args = argv;
     args_num = argc;
 
-    handle_args(args, args_num, &interface, &logo_color, &fields_color, \
+    handle_args(args, args_num, 0, &interface, &logo_color, &fields_color, \
                 &values_color, &sep_color, sep, padding, &ascii_strict);
 
     if(interface == NULL) {
