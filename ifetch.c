@@ -4,8 +4,11 @@
 #include <dirent.h>
 #include <netdb.h>
 #include <ifaddrs.h>
+#include <unistd.h>
+#include <pwd.h>
 
 #define INTERFACES_PATH "/sys/class/net"
+#define CONFIG_PATH_SUFFIX ".config/ifetch/ifetchrc"
 
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
@@ -431,6 +434,10 @@ void handle_args(char **argv, int argc, char **interface, char **logo_color, \
 }
 
 int main(int argc, char **argv) {
+    char *home_dir = getpwuid(getuid())->pw_dir;
+    char config_path[MAX_PATH_LENGTH];
+    sprintf(config_path, "%s/%s", home_dir, CONFIG_PATH_SUFFIX);
+
     char *logo_color = BWHITE;
     char *fields_color = BCYAN;
     char *values_color = BWHITE;
@@ -458,6 +465,12 @@ int main(int argc, char **argv) {
 
     char **args;
     int args_num;
+
+    if(args_from_file(&args, &args_num, config_path)) {
+        handle_args(args, args_num, &interface, &logo_color, &fields_color, \
+                    &values_color, &sep_color, sep, padding, &ascii_strict);
+        free_args(args, args_num);
+    }
 
     args = argv;
     args_num = argc;
