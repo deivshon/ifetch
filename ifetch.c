@@ -310,7 +310,7 @@ void handle_color_argument(char **dest, int *ai, int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    int assigned = assign_color(&(*dest), argv[*ai][0]);
+    int assigned = assign_color(dest, argv[*ai][0]);
     if(!assigned) {
         printf("%s is not a valid color code\n", argv[*ai]);
         exit(EXIT_FAILURE);
