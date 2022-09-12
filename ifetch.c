@@ -323,7 +323,8 @@ void exit_config_error(char *wrong_arg) {
 }
 
 void args_from_file(char ***argv, int *argc, char *file_path) {
-    (*argv) = malloc(sizeof(char) * MAX_ARGS);
+    (*argv) = calloc(MAX_ARGS, sizeof(char *));
+
     FILE *fs = fopen(file_path, "r");
     if(fs == NULL) {
         printf("No config file found at path %s\n", file_path);
