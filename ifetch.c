@@ -322,7 +322,8 @@ void exit_config_error(char *wrong_arg) {
     exit(EXIT_FAILURE);
 }
 
-void args_from_file(char **argv, int *argc, char *file_path) {
+void args_from_file(char ***argv, int *argc, char *file_path) {
+    (*argv) = malloc(sizeof(char) * MAX_ARGS);
     FILE *fs = fopen(file_path, "r");
     if(fs == NULL) {
         printf("No config file found at path %s\n", file_path);
@@ -341,16 +342,16 @@ void args_from_file(char **argv, int *argc, char *file_path) {
         buf_split = strtok(buf, "=");
         if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
 
-        argv[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
-        strcpy(argv[i], buf_split);
+        (*argv)[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
+        strcpy((*argv)[i], buf_split);
         i++;
 
         buf_split = strtok(NULL, "=");
         if(buf_split == NULL) continue;
         if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
     
-        argv[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
-        strcpy(argv[i], buf_split);
+        (*argv)[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
+        strcpy((*argv)[i], buf_split);
         i++;
     }
 
