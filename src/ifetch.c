@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
     char rx_mu[16], tx_mu[16];
 
     char mac[18];
+    int mac_present;
 
     char *ip_addr_4[MAX_IPV4_NUM];
     int ipv4_num = 0;
@@ -123,29 +124,33 @@ int main(int argc, char **argv) {
         interface = malloc(sizeof(char) * 32);
         int interface_available = get_max_interface(interface, &rx, &tx);
         if(!interface_available) {
+            free(interface);
             printf("No interface available\n");
             exit(EXIT_FAILURE);
         }
     }
     else {
-        rx = get_bytes(interface, RX);
-        tx = get_bytes(interface, TX);
+        get_bytes(&rx, interface, RX);
+        get_bytes(&tx, interface, TX);
     }
 
     to_formatted_bytes(rx_mu, rx);
     to_formatted_bytes(tx_mu, tx);
-    get_mac(mac, interface);
+    mac_present = get_mac(mac, interface);
     ipv4_num = get_ip(ip_addr_4, 1024, interface, IPv4);
     ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
     assign_logo(&assigned_logo, interface, ascii_strict);
 
+    int row_index = 0;
 
-    printf("%s%s%s  INTERFACE%s%s%s %s\n", logo_color, assigned_logo->row[0], fields_color, sep_color, sep, values_color, interface);
+    printf("%s%s%s  INTERFACE%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, interface);
     if(no_if_specified) free(interface);
+    row_index++;
 
-    printf("%s%s%s        MAC%s%s%s %s\n", logo_color, assigned_logo->row[1], fields_color, sep_color, sep, values_color, mac);
-
-    int row_index = 2;
+    if(mac_present) {
+        printf("%s%s%s        MAC%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, mac);
+        row_index++;
+    }
 
     for(int i = 0; i < ipv4_num; i++) {
         if(i == 0)
@@ -165,10 +170,14 @@ int main(int argc, char **argv) {
         row_index++;
     }
 
-    printf("%s%s%s         RX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, rx_mu);
-    row_index++;
-    printf("%s%s%s         TX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, tx_mu);
-    row_index++;
+    if(rx != -1) {
+        printf("%s%s%s         RX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, rx_mu);
+        row_index++;
+    }
+    if(tx != -1) {
+        printf("%s%s%s         TX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, tx_mu);
+        row_index++;
+    }
 
     while(row_index < ROWS_NUM) {
         printf("%s%s\n", logo_color, assigned_logo->row[row_index]);

@@ -6,8 +6,9 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 
-static void line_from_file(char *dest, char *path) {
+static int line_from_file(char *dest, char *path) {
     FILE *fs = fopen(path, "r");
+    if(fs == NULL) return 0;
 
     char line[1024];
     fgets(line, 1024, fs);
@@ -17,27 +18,35 @@ static void line_from_file(char *dest, char *path) {
     line[strcspn(line, "\n")] = '\0';
 
     strcpy(dest, line);
+    return 1;
 }
 
-static double double_from_file(char *path) {
+static double double_from_file(double *dest, char *path) {
     FILE *fs = fopen(path, "r");
+    if(fs == NULL) return 0;
 
     char number_str[20];
     fgets(number_str, 20, fs);
-
+    if(!strcmp(number_str, "\n") || !strcmp(number_str, "")) { 
+        // If the file is empty, the function failed
+        fclose(fs);
+        return 0;
+    }
     fclose(fs);
 
-    return strtod(number_str, NULL);
+    (*dest) = strtod(number_str, NULL);
+    return 1;
 }
 
-double get_bytes(char *interface, enum transmission_type t) {
+double get_bytes(double *dest, char *interface, enum transmission_type t) {
     char file_path[MAX_PATH_LENGTH];
     if(t == RX)
         sprintf(file_path, "%s/%s/%s", INTERFACES_PATH, interface, "/statistics/rx_bytes");
     else if(t == TX)
         sprintf(file_path, "%s/%s/%s", INTERFACES_PATH, interface, "/statistics/tx_bytes");
 
-    return double_from_file(file_path);
+    if(!double_from_file(dest, file_path)) return 0;
+    return 1;
 }
 
 int to_formatted_bytes(char *dest, double bytes) {
@@ -55,11 +64,13 @@ int to_formatted_bytes(char *dest, double bytes) {
     return 1;
 }
 
-void get_mac(char *dest, char *interface) {
+int get_mac(char *dest, char *interface) {
     char mac_file_path[MAX_PATH_LENGTH];
     sprintf(mac_file_path, "%s/%s/%s", INTERFACES_PATH, interface, "address");
 
-    line_from_file(dest, mac_file_path);
+    if(!line_from_file(dest, mac_file_path)) return 0;
+
+    return strcmp("", dest);
 }
 
 int get_ip(char **dest, unsigned int dest_size, char *interface_name, enum ipv ip_version) {
@@ -124,8 +135,8 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
         if(strcmp(cur_opstate, "up\n")) // If interface is not up, continue
             continue;
 
-        cur_rx_bytes = get_bytes(entry->d_name, RX);
-        cur_tx_bytes = get_bytes(entry->d_name, TX);
+        if(!get_bytes(&cur_rx_bytes, entry->d_name, RX) || \
+           !get_bytes(&cur_tx_bytes, entry->d_name, TX)) continue;
 
         if(cur_rx_bytes + cur_tx_bytes > current_max) {
             current_max = cur_rx_bytes + cur_tx_bytes;

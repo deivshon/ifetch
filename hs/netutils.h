@@ -13,11 +13,11 @@
 enum transmission_type {TX, RX};
 enum ipv {IPv4, IPv6};
 
-double get_bytes(char *interface, enum transmission_type t);
+double get_bytes(double *dest, char *interface, enum transmission_type t);
 
 int to_formatted_bytes(char *dest, double bytes);
 
-void get_mac(char *dest, char *interface);
+int get_mac(char *dest, char *interface);
 
 int get_ip(char **dest, unsigned int dest_size, char *interface_name, enum ipv ip_version);
 
