@@ -78,8 +78,9 @@ void handle_color_argument(char **dest, int *ai, int argc,  \
         printf("%sYou must provide a color after the %s option\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
     }
-
+    
     (*ai)++;
+    argv[*ai][strcspn(argv[*ai], " ")] = '\0';
     if(strlen(argv[*ai]) > 1) {
         printf("%s%s is not a valid color code\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
@@ -161,6 +162,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
     int i = 1;
     char buf[MAX_ARG_SIZE * 2 + 1];
     char *buf_split;
+    int len_add;
 
     while(i < MAX_ARGS) {
         if(!fgets(buf, MAX_ARG_SIZE * 2 + 1, fs)) break;
@@ -170,8 +172,13 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
         buf_split = strtok(buf, "=");
         if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
 
-        (*argv)[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
-        strcpy((*argv)[i], buf_split);
+        len_add = buf_split[0] != '-' ? 1 : 0;
+
+        (*argv)[i] = malloc(sizeof(char) * (strlen(buf_split) + 1 + len_add));
+        if(buf_split[0] != '-') 
+            sprintf((*argv)[i], "%s%s", "-", buf_split);
+        else
+            strcpy((*argv)[i], buf_split);
         i++;
 
         buf_split = strtok(NULL, "=");
