@@ -55,7 +55,7 @@ void handle_args(char **argv, int argc, int from_config,    \
 
             ai++;
             if(strlen(argv[ai]) >= 9) {
-                printf("%s\"%s\" is not a valid separator\nThe separator must be at maximum 8 characters long\n", error_premise);
+                printf("%s\"%s\" is not a valid separator\nThe separator must be at maximum 8 characters long\n", error_premise, argv[ai]);
                 exit(EXIT_FAILURE);
             }
             strcpy(sep, argv[ai]);
