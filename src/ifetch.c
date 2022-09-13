@@ -10,8 +10,15 @@
 #define CONFIG_PATH_SUFFIX ".config/ifetch/ifetchrc"
 
 #define ROWS_NUM 8
+#define MAX_PADDING 11
 
 #define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
+
+#define output_data(data, label, logo, row_index, sep, logo_color, fields_color, values_color, sep_color)   \
+printf("%s%s%s%*s%s%s%s%s %s\n", logo_color, logo->row[row_index], fields_color, MAX_PADDING - strlen(label), "", label, sep_color, sep, values_color, data);
+
+#define output_data_padded(data, logo, row_index, logo_color, fields_color, values_color, sep_color)   \
+printf("%s%s%s%*s%*s%s%s %s\n", logo_color, logo->row[row_index], fields_color, MAX_PADDING, "", strlen(sep), "", sep_color, values_color, data);
 
 struct logo {
     char row[ROWS_NUM][64];
@@ -92,7 +99,6 @@ int main(int argc, char **argv) {
     int ascii_strict = 0;
 
     char sep[9] = ":";
-    char padding[10] = "  ";
 
     char interface[MAX_INTERFACE_LENGTH];
     interface[0] = '\0';
@@ -114,7 +120,7 @@ int main(int argc, char **argv) {
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, interface, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, padding, &ascii_strict);
+                    &values_color, &sep_color, sep, &ascii_strict);
         free_args(args, args_num);
     }
 
@@ -122,7 +128,7 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, interface, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, padding, &ascii_strict);
+                &values_color, &sep_color, sep, &ascii_strict);
 
     if(strlen(interface) == 0) {
         int interface_available = get_max_interface(interface, &rx, &tx);
@@ -145,38 +151,42 @@ int main(int argc, char **argv) {
 
     int row_index = 0;
 
-    printf("%s%s%s  INTERFACE%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, interface);
+    output_data(interface, "INTERFACE", assigned_logo, row_index, sep, logo_color, fields_color, values_color, sep_color);
     row_index++;
 
     if(mac_present) {
-        printf("%s%s%s        MAC%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, mac);
+        output_data(mac, "MAC", assigned_logo, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
 
-    for(int i = 0; i < ipv4_num; i++) {
-        if(i == 0)
-            printf("%s%s%s       IPv4%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, ip_addr_4[i]);
-        else
-            printf("%s%s%s           %s%s%s\n", logo_color, assigned_logo->row[row_index], fields_color, values_color, padding, ip_addr_4[i]);
-        free(ip_addr_4[i]);
+    if(ipv4_num > 0) {
+        output_data(ip_addr_4[0], "IPv4", assigned_logo, row_index, sep, logo_color, fields_color, values_color, sep_color);
+        free(ip_addr_4[0]);
         row_index++;
+        for(int i = 1; i < ipv4_num; i++) {
+            output_data_padded(ip_addr_4[i], assigned_logo, row_index, logo_color, fields_color, values_color, sep_color);
+            row_index++;
+            free(ip_addr_4[i]);
+        }
     }
 
-    for(int i = 0; i < ipv6_num; i++) {
-        if(i == 0)
-            printf("%s%s%s       IPv6%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, ip_addr_6[i]);
-        else
-            printf("%s%s%s           %s%s%s\n", logo_color, assigned_logo->row[row_index], fields_color, values_color, padding, ip_addr_6[i]);
-        free(ip_addr_6[i]);
+    if(ipv6_num > 0) {
+        output_data(ip_addr_6[0], "IPv6", assigned_logo, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
+        free(ip_addr_6[0]);
+        for(int i = 1; i < ipv6_num; i++) {
+            output_data_padded(ip_addr_6[i], assigned_logo, row_index, logo_color, fields_color, values_color, sep_color);
+            row_index++;
+            free(ip_addr_6[i]);
+        }
     }
 
     if(rx != -1) {
-        printf("%s%s%s         RX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, rx_mu);
+        output_data(rx_mu, "RX", assigned_logo, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
     if(tx != -1) {
-        printf("%s%s%s         TX%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, tx_mu);
+        output_data(tx_mu, "TX", assigned_logo, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
 

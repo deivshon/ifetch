@@ -23,7 +23,7 @@ void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
                  char **sep_color, char *sep,               \
-                 char *padding, int *ascii_strict);
+                 int *ascii_strict);
 
 void handle_color_argument(char **dest, int *ai, int argc,  \
                            char **argv, char *error_premise);

@@ -9,7 +9,7 @@ void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
                  char **sep_color, char *sep,               \
-                 char *padding, int *ascii_strict)
+                 int *ascii_strict)
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
     int ai = 1;
@@ -45,7 +45,6 @@ void handle_args(char **argv, int argc, int from_config,    \
         }
         else if(strcmp("-ns", argv[ai]) == 0) {
             strcpy(sep, "");
-            strcpy(padding, " ");
         }
         else if(strcmp("-s", argv[ai]) == 0) {
             if(ai + 1 >= argc) {
@@ -59,7 +58,6 @@ void handle_args(char **argv, int argc, int from_config,    \
                 exit(EXIT_FAILURE);
             }
             strcpy(sep, argv[ai]);
-            sprintf(padding, "%*s", strlen(sep) + 1, "");
         }
         else if(strcmp("-ascii", argv[ai]) == 0) {
             (*ascii_strict) = 1;
