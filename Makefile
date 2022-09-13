@@ -2,9 +2,9 @@ SRC_DIR = src
 HS_DIR = hs
 
 ifeq ($(dbg), true)
-	CFLAGS = -g
+	CFLAGS = -Wall -g
 else
-	CFLAGS = -O2
+	CFLAGS = -Wall -O2
 endif
 
 ifetch: ifetch_main.o netutils_nm.o argutils_nm.o
