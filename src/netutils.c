@@ -60,7 +60,11 @@ int to_formatted_bytes(char *dest, double bytes) {
         divisions++;
     }
 
-    sprintf(dest, "%3.3lf %s", approx_bytes, suffixes[divisions]);
+    if(divisions == 0)
+        sprintf(dest, "%.0lf %s", approx_bytes, suffixes[divisions]);
+    else
+        sprintf(dest, "%.2lf %s", approx_bytes, suffixes[divisions]);
+
     return 1;
 }
 
