@@ -25,8 +25,10 @@ static double double_from_file(double *dest, char *path) {
     FILE *fs = fopen(path, "r");
     if(fs == NULL) return 0;
 
-    char number_str[20];
-    fgets(number_str, 20, fs);
+    char number_str[32];
+    number_str[0] = '\0';
+
+    fgets(number_str, 32, fs);
     if(!strcmp(number_str, "\n") || !strcmp(number_str, "")) { 
         // If the file is empty, the function failed
         fclose(fs);
