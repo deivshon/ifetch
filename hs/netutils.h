@@ -3,7 +3,7 @@
 
 #define INTERFACE_SIZE 32
 #define MAX_IPV6_NUM 2
-#define MAX_IPV4_NUM 1
+#define MAX_IPV4_NUM 2
 
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
