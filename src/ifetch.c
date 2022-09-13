@@ -89,8 +89,8 @@ int main(int argc, char **argv) {
     char sep[9] = ":";
     char padding[10] = "  ";
 
-    char *interface = NULL;
-    int no_if_specified = 0;
+    char interface[MAX_INTERFACE_LENGTH];
+    interface[0] = '\0';
 
     double rx = -1, tx = -1;
     char rx_mu[16], tx_mu[16];
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
-        handle_args(args, args_num, 1, &interface, &logo_color, &fields_color, \
+        handle_args(args, args_num, 1, interface, &logo_color, &fields_color, \
                     &values_color, &sep_color, sep, padding, &ascii_strict);
         free_args(args, args_num);
     }
@@ -116,15 +116,12 @@ int main(int argc, char **argv) {
     args = argv;
     args_num = argc;
 
-    handle_args(args, args_num, 0, &interface, &logo_color, &fields_color, \
+    handle_args(args, args_num, 0, interface, &logo_color, &fields_color, \
                 &values_color, &sep_color, sep, padding, &ascii_strict);
 
-    if(interface == NULL) {
-        no_if_specified = 1;
-        interface = malloc(sizeof(char) * 32);
+    if(strlen(interface) == 0) {
         int interface_available = get_max_interface(interface, &rx, &tx);
         if(!interface_available) {
-            free(interface);
             printf("No interface available\n");
             exit(EXIT_FAILURE);
         }
@@ -144,7 +141,6 @@ int main(int argc, char **argv) {
     int row_index = 0;
 
     printf("%s%s%s  INTERFACE%s%s%s %s\n", logo_color, assigned_logo->row[row_index], fields_color, sep_color, sep, values_color, interface);
-    if(no_if_specified) free(interface);
     row_index++;
 
     if(mac_present) {

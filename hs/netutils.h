@@ -7,6 +7,7 @@
 
 #define MAX_PATH_LENGTH 4096
 #define MAX_FILENAME_LENGTH 256
+#define MAX_INTERFACE_LENGTH 64
 
 #define INTERFACES_PATH "/sys/class/net"
 

@@ -6,7 +6,7 @@
 #include <string.h>
 
 void handle_args(char **argv, int argc, int from_config,    \
-                 char **interface, char **logo_color,       \
+                 char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
                  char **sep_color, char *sep,               \
                  char *padding, int *ascii_strict)
@@ -23,8 +23,9 @@ void handle_args(char **argv, int argc, int from_config,    \
                 }
                 ai++;
             }
-            (*interface) = argv[ai];
-            if(!interface_exists(*interface)) {
+
+            strcpy(interface, argv[ai]);
+            if(!interface_exists(interface)) {
                 printf("%sNo interface named %s exists\n", error_premise, *interface);
                 exit(EXIT_FAILURE);
             }
