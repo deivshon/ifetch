@@ -11,6 +11,8 @@
 
 #define ROWS_NUM 8
 
+#define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
+
 struct logo {
     char row[ROWS_NUM][64];
 };
@@ -60,17 +62,20 @@ struct logo default_logo = {
 };
 
 void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
-    switch(interface[0]) {
-        case 'e':
-            *dest = ascii_strict ? &ethernet_logo_alt : &ethernet_logo;
-            break;
-        case 'w':
-            *dest = &wifi_logo;
-            break;
-        default:
-            *dest = &default_logo;
-            break;
+    if(strlen(interface) < 3) {
+        *dest = &default_logo;
+        return;
     }
+    if(starts_with(interface, "wlp") || starts_with(interface, "wlan")) {
+        *dest = &wifi_logo;
+        return;
+    }
+    if(starts_with(interface, "eth") || starts_with(interface, "enp")) {
+        *dest = ascii_strict ? &ethernet_logo_alt : &ethernet_logo;
+        return;
+    }
+    *dest = &default_logo;
+    return;
 }
 
 int main(int argc, char **argv) {
