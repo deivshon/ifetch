@@ -1,1 +1,1 @@
-# netfetch
+# ifetch
