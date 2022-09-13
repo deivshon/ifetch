@@ -8,8 +8,7 @@
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep,               \
-                 int *ascii_strict)
+                 char **sep_color, char *sep)
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
     int ai = 1;
@@ -59,9 +58,6 @@ void handle_args(char **argv, int argc, int from_config,    \
                 exit(EXIT_FAILURE);
             }
             strcpy(sep, argv[ai]);
-        }
-        else if(strcmp("-ascii", argv[ai]) == 0) {
-            (*ascii_strict) = 1;
         }
         else {
             printf("%sUncrecognized argument: \"%s\"\n", error_premise, argv[ai]);

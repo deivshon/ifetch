@@ -25,17 +25,6 @@ struct logo {
 };
 
 struct logo ethernet_logo = {{
-    "┌───────────────┐",
-    "│   ┌───────┐   │",
-    "│ ┌─┘       └─┐ │",
-    "│ │           │ │",
-    "│ │ │ │ │ │ │ │ │",
-    "│ │ │ │ │ │ │ │ │",
-    "│ └─┴─┴─┴─┴─┴─┘ │",
-    "└───────────────┘"
-}};
-
-struct logo ethernet_logo_alt = {{
     "+---------------+",
     "|   +-------+   |",
     "| +--       --+ |",
@@ -68,7 +57,7 @@ struct logo default_logo = {{
     "|___|___|___|___|"
 }};
 
-void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
+void assign_logo(struct logo **dest, char *interface) {
     if(strlen(interface) < 3) {
         *dest = &default_logo;
         return;
@@ -78,7 +67,7 @@ void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
         return;
     }
     if(starts_with(interface, "eth") || starts_with(interface, "enp")) {
-        *dest = ascii_strict ? &ethernet_logo_alt : &ethernet_logo;
+        *dest = &ethernet_logo;
         return;
     }
     *dest = &default_logo;
@@ -96,7 +85,6 @@ int main(int argc, char **argv) {
     char *sep_color = BWHITE;
 
     struct logo *assigned_logo;
-    int ascii_strict = 0;
 
     char sep[9] = ":";
 
@@ -120,7 +108,7 @@ int main(int argc, char **argv) {
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, interface, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, &ascii_strict);
+                    &values_color, &sep_color, sep);
         free_args(args, args_num);
     }
 
@@ -128,7 +116,7 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, interface, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, &ascii_strict);
+                &values_color, &sep_color, sep);
 
     if(strlen(interface) == 0) {
         int interface_available = get_max_interface(interface, &rx, &tx);
@@ -147,7 +135,7 @@ int main(int argc, char **argv) {
     mac_present = get_mac(mac, interface);
     ipv4_num = get_ip(ip_addr_4, 1024, interface, IPv4);
     ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
-    assign_logo(&assigned_logo, interface, ascii_strict);
+    assign_logo(&assigned_logo, interface);
 
     int row_index = 0;
 
