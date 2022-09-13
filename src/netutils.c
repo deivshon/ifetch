@@ -119,13 +119,12 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
     DIR *interfaces = opendir(INTERFACES_PATH);
     struct dirent *entry;
 
-    char cur_if_path[MAX_PATH_LENGTH];
     char cur_opstate_path[MAX_PATH_LENGTH];
     char cur_opstate[8];
 
     double cur_rx_bytes;
     double cur_tx_bytes;
-    while(entry = readdir(interfaces)) {
+    while((entry = readdir(interfaces)) != NULL) {
         if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
 

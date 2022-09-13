@@ -15,10 +15,10 @@
 #define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
 #define output_data(data, label, logo, row_index, sep, logo_color, fields_color, values_color, sep_color)   \
-printf("%s%s%s%*s%s%s%s%s %s\n", logo_color, logo->row[row_index], fields_color, MAX_PADDING - strlen(label), "", label, sep_color, sep, values_color, data);
+printf("%s%s%s%*s%s%s%s%s %s\n", logo_color, logo->row[row_index], fields_color, (int) (MAX_PADDING - strlen(label)), "", label, sep_color, sep, values_color, data);
 
 #define output_data_padded(data, logo, row_index, logo_color, fields_color, values_color, sep_color)   \
-printf("%s%s%s%*s%*s%s%s %s\n", logo_color, logo->row[row_index], fields_color, MAX_PADDING, "", strlen(sep), "", sep_color, values_color, data);
+printf("%s%s%s%*s%*s%s%s %s\n", logo_color, logo->row[row_index], fields_color, (int) MAX_PADDING, "", (int) strlen(sep), "", sep_color, values_color, data);
 
 struct logo {
     char row[ROWS_NUM][64];
