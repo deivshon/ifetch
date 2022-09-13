@@ -24,7 +24,7 @@ struct logo {
     char row[ROWS_NUM][64];
 };
 
-struct logo ethernet_logo = {
+struct logo ethernet_logo = {{
     "┌───────────────┐",
     "│   ┌───────┐   │",
     "│ ┌─┘       └─┐ │",
@@ -33,9 +33,9 @@ struct logo ethernet_logo = {
     "│ │ │ │ │ │ │ │ │",
     "│ └─┴─┴─┴─┴─┴─┘ │",
     "└───────────────┘"
-};
+}};
 
-struct logo ethernet_logo_alt = {
+struct logo ethernet_logo_alt = {{
     "+---------------+",
     "|   +-------+   |",
     "| +--       --+ |",
@@ -44,9 +44,9 @@ struct logo ethernet_logo_alt = {
     "| | | | | | | | |",
     "| +-----------+ |",
     "+---------------+"
-};
+}};
 
-struct logo wifi_logo = {
+struct logo wifi_logo = {{
     "   ___________   ",
     "  /           \\  ",
     " /  _________  \\ ",
@@ -55,9 +55,9 @@ struct logo wifi_logo = {
     "    /       \\    ",
     "       ...       ",
     "       ...       "
-};
+}};
 
-struct logo default_logo = {
+struct logo default_logo = {{
     "            +---+",
     "            |   |",
     "        +---+   |",
@@ -66,7 +66,7 @@ struct logo default_logo = {
     "    |   |   |   |",
     "+---+   |   |   |",
     "|___|___|___|___|"
-};
+}};
 
 void assign_logo(struct logo **dest, char *interface, int ascii_strict) {
     if(strlen(interface) < 3) {
