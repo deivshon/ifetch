@@ -24,6 +24,7 @@ void handle_args(char **argv, int argc, int from_config,    \
                 ai++;
             }
 
+            argv[ai][strcspn(argv[ai], " ")] = '\0';
             strcpy(interface, argv[ai]);
             if(!interface_exists(interface)) {
                 printf("%sNo interface named \"%s\" exists\n", error_premise, interface);
