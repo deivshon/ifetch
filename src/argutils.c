@@ -5,15 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void handle_color_argument(char **dest, int *ai, int argc,  \
-                           char **argv, char *error_premise)
-{
+static void step_arg_next(char **argv, int argc, int *ai,   \
+                          char *error_premise) {
     if((*ai) + 1 >= argc) {
-        printf("%sYou must provide a color after the \"%s\" option\n", error_premise, argv[*ai]);
+        printf("%sYou must provide an argument after the \"%s\" option\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
     }
     
     (*ai)++;
+}
+
+static void handle_color_argument(char **dest, int *ai, char **argv,    \
+                                  char *error_premise)
+{
     argv[*ai][strcspn(argv[*ai], " ")] = '\0';
     if(strlen(argv[*ai]) > 1) {
         printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
@@ -27,15 +31,9 @@ static void handle_color_argument(char **dest, int *ai, int argc,  \
     }
 }
 
-static void handle_show_argument(int *dest, int *ai, int argc,      \
-                                 char **argv, char *error_premise)
+static void handle_show_argument(int *dest, int *ai, char **argv,   \
+                                 char *error_premise)
 {
-    if((*ai) + 1 >= argc) {
-        printf("%sYou must provide an argument (s | show | h | hide) after the \"%s\" option\n", error_premise, argv[*ai]);
-        exit(EXIT_FAILURE);
-    }
-    
-    (*ai)++;
     argv[*ai][strcspn(argv[*ai], " ")] = '\0';
 
     if(!strcmp("s", argv[*ai]) || !strcmp("show", argv[*ai]))
@@ -62,11 +60,7 @@ void handle_args(char **argv, int argc, int from_config,    \
         // Case for interface
         if(argv[ai][0] != '-' || strcmp("-ifn", argv[ai]) == 0) {
             if(argv[ai][0] == '-') {
-                if(ai + 1 >= argc) {
-                    printf("%sYou must provide an interface after the \"-i\" option\n", error_premise);
-                    exit(EXIT_FAILURE);
-                }
-                ai++;
+                step_arg_next(argv, argc, &ai, error_premise);
             }
 
             argv[ai][strcspn(argv[ai], " ")] = '\0';
@@ -78,27 +72,27 @@ void handle_args(char **argv, int argc, int from_config,    \
         }
         // Other options
         else if(!strcmp("-fc", argv[ai])) {
-            handle_color_argument(fields_color, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_color_argument(fields_color, &ai, argv, error_premise);
         }
         else if(!strcmp("-vc", argv[ai])) {
-            handle_color_argument(values_color, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_color_argument(values_color, &ai, argv, error_premise);
         }
         else if(!strcmp("-sc", argv[ai])) {
-            handle_color_argument(sep_color, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_color_argument(sep_color, &ai, argv, error_premise);
         }
         else if(!strcmp("-lc", argv[ai])) {
-            handle_color_argument(logo_color, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_color_argument(logo_color, &ai, argv, error_premise);
         }
         else if(!strcmp("-ns", argv[ai])) {
             strcpy(sep, "");
         }
         else if(!strcmp("-s", argv[ai])) {
-            if(ai + 1 >= argc) {
-                printf("%sYou must provide a separator to use after the \"-s\" option\n", error_premise);
-                exit(EXIT_FAILURE);
-            }
+            step_arg_next(argv, argc, &ai, error_premise);
 
-            ai++;
             if(strlen(argv[ai]) >= 9) {
                 printf("%s\"%s\" is not a valid separator\nThe separator must be at maximum 8 characters long\n", error_premise, argv[ai]);
                 exit(EXIT_FAILURE);
@@ -106,22 +100,28 @@ void handle_args(char **argv, int argc, int from_config,    \
             strcpy(sep, argv[ai]);
         }
         else if(!strcmp("-if", argv[ai])) {
-            handle_show_argument(show_interface, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_show_argument(show_interface, &ai, argv, error_premise);
         }
         else if(!strcmp("-mac", argv[ai])) {
-            handle_show_argument(show_mac, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_show_argument(show_mac, &ai, argv, error_premise);
         }
         else if(!strcmp("-ip4", argv[ai])) {
-            handle_show_argument(show_ip4, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_show_argument(show_ip4, &ai, argv, error_premise);
         }
         else if(!strcmp("-ip6", argv[ai])) {
-            handle_show_argument(show_ip6, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_show_argument(show_ip6, &ai, argv, error_premise);
         }
         else if(!strcmp("-rx", argv[ai])) {
-            handle_show_argument(show_rx, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_show_argument(show_rx, &ai, argv, error_premise);
         }
         else if(!strcmp("-tx", argv[ai])) {
-            handle_show_argument(show_tx, &ai, argc, argv, error_premise);
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_show_argument(show_tx, &ai, argv, error_premise);
         }
         else {
             printf("%sUncrecognized argument: \"%s\"\n", error_premise, argv[ai]);
