@@ -142,8 +142,8 @@ int main(int argc, char **argv) {
     if(rx != -1) to_formatted_bytes(rx_mu, rx);
     if(tx != -1) to_formatted_bytes(tx_mu, tx);
     mac_present = get_mac(mac, interface);
-    ipv4_num = get_ip(ip_addr_4, 1024, interface, IPv4);
-    ipv6_num = get_ip(ip_addr_6, 1024, interface, IPv6);
+    ipv4_num = get_ip(ip_addr_4, interface, IPv4);
+    ipv6_num = get_ip(ip_addr_6, interface, IPv6);
     assign_logo(&assigned_logo, interface);
     get_logo_space(logo_substitute, assigned_logo);
 

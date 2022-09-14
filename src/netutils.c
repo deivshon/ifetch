@@ -79,12 +79,12 @@ int get_mac(char *dest, char *interface) {
     return strcmp("", dest);
 }
 
-int get_ip(char **dest, unsigned int dest_size, char *interface_name, enum ipv ip_version) {
+int get_ip(char **dest, char *interface_name, enum ipv ip_version) {
     struct ifaddrs *interface, *interface_head;
     if(getifaddrs(&interface) == -1) return 0;
     interface_head = interface;
 
-    char current_ip[1024];
+    char current_ip[MAX_IP_LENGTH];
     int c = 0;
 
     size_t info_size = ip_version == IPv4 ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
@@ -97,10 +97,10 @@ int get_ip(char **dest, unsigned int dest_size, char *interface_name, enum ipv i
             continue; 
         }
 
-        int gni_res = !getnameinfo(interface->ifa_addr, info_size, current_ip, 1024, NULL, 0, NI_NUMERICHOST);
+        int gni_res = !getnameinfo(interface->ifa_addr, info_size, current_ip, MAX_IP_LENGTH, NULL, 0, NI_NUMERICHOST);
 
         if(gni_res && strcmp(interface->ifa_name, interface_name) == 0 && interface->ifa_addr->sa_family == family) {
-            dest[c] = malloc(sizeof(char) * 1024);
+            dest[c] = malloc(sizeof(char) * MAX_IP_LENGTH);
             strcpy(dest[c], current_ip);
             c++;
         }
