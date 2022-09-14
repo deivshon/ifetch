@@ -224,6 +224,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
         else
             strcpy((*argv)[i], arg);
         i++;
+        if(i >= MAX_ARGS) break;
 
         buf_split = strtok(NULL, "=");
         if(buf_split == NULL) continue;
