@@ -99,25 +99,31 @@ int main(int argc, char **argv) {
 
     char interface[MAX_INTERFACE_LENGTH];
     interface[0] = '\0';
+    int show_interface = 1;
 
     double rx = -1, tx = -1;
     char rx_mu[16], tx_mu[16];
+    int show_rx = 1, show_tx = 1;
 
     char mac[18];
-    int mac_present;
+    int mac_present = 0;
+    int show_mac = 1;
 
     char *ip_addr_4[MAX_IPV4_NUM];
     unsigned int ipv4_num = 0;
+    int show_ip4 = 1;
 
     char *ip_addr_6[MAX_IPV6_NUM];
-    unsigned int ipv6_num = 0;    
+    unsigned int ipv6_num = 0;
+    int show_ip6 = 1;
 
     char **args;
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, interface, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep);
+                    &values_color, &sep_color, sep, &show_interface, &show_rx,\
+                    &show_tx, &show_mac, &show_ip4, &show_ip6);
         free_args(args, args_num);
     }
 
@@ -125,7 +131,8 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, interface, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep);
+                &values_color, &sep_color, sep, &show_interface, &show_rx,\
+                &show_tx, &show_mac, &show_ip4, &show_ip6);
 
     if(strlen(interface) == 0) {
         int interface_available = get_max_interface(interface, &rx, &tx);
@@ -139,25 +146,27 @@ int main(int argc, char **argv) {
         get_bytes(&tx, interface, TX);
     }
 
-    if(rx != -1) to_formatted_bytes(rx_mu, rx);
-    if(tx != -1) to_formatted_bytes(tx_mu, tx);
-    mac_present = get_mac(mac, interface);
-    ipv4_num = get_ip(ip_addr_4, interface, IPv4);
-    ipv6_num = get_ip(ip_addr_6, interface, IPv6);
+    if(show_rx) if(rx != -1) to_formatted_bytes(rx_mu, rx);
+    if(show_tx) if(tx != -1) to_formatted_bytes(tx_mu, tx);
+    if(show_mac) mac_present = get_mac(mac, interface);
+    if(show_ip4) ipv4_num = get_ip(ip_addr_4, interface, IPv4);
+    if(show_ip6) ipv6_num = get_ip(ip_addr_6, interface, IPv6);
     assign_logo(&assigned_logo, interface);
     get_logo_space(logo_substitute, assigned_logo);
 
     unsigned int row_index = 0;
 
-    output_data(interface, "INTERFACE", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-    row_index++;
+    if(show_interface) {
+        output_data(interface, "INTERFACE", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+        row_index++;
+    }
 
-    if(mac_present) {
+    if(show_mac && mac_present) {
         output_data(mac, "MAC", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
 
-    if(ipv4_num > 0) {
+    if(show_ip4 && ipv4_num > 0) {
         output_data(ip_addr_4[0], "IPv4", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         free(ip_addr_4[0]);
         row_index++;
@@ -168,7 +177,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if(ipv6_num > 0) {
+    if(show_ip6 && ipv6_num > 0) {
         output_data(ip_addr_6[0], "IPv6", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
         free(ip_addr_6[0]);
@@ -179,11 +188,11 @@ int main(int argc, char **argv) {
         }
     }
 
-    if(rx != -1) {
+    if(show_rx && rx != -1) {
         output_data(rx_mu, "RX", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
-    if(tx != -1) {
+    if(show_tx && tx != -1) {
         output_data(tx_mu, "TX", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }

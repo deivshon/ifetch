@@ -5,10 +5,56 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void handle_color_argument(char **dest, int *ai, int argc,  \
+                           char **argv, char *error_premise)
+{
+    if((*ai) + 1 >= argc) {
+        printf("%sYou must provide a color after the \"%s\" option\n", error_premise, argv[*ai]);
+        exit(EXIT_FAILURE);
+    }
+    
+    (*ai)++;
+    argv[*ai][strcspn(argv[*ai], " ")] = '\0';
+    if(strlen(argv[*ai]) > 1) {
+        printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
+        exit(EXIT_FAILURE);
+    }
+
+    int assigned = assign_color(dest, argv[*ai][0]);
+    if(!assigned) {
+        printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
+        exit(EXIT_FAILURE);
+    }
+}
+
+static void handle_show_argument(int *dest, int *ai, int argc,      \
+                                 char **argv, char *error_premise)
+{
+    if((*ai) + 1 >= argc) {
+        printf("%sYou must provide an argument (s | show | h | hide) after the \"%s\" option\n", error_premise, argv[*ai]);
+        exit(EXIT_FAILURE);
+    }
+    
+    (*ai)++;
+    argv[*ai][strcspn(argv[*ai], " ")] = '\0';
+
+    if(!strcmp("s", argv[*ai]) || !strcmp("show", argv[*ai]))
+        (*dest) = 1;
+    else if(!strcmp("h", argv[*ai]) || !strcmp("hide", argv[*ai]))
+        (*dest) = 0;
+    else {
+        printf("%s\"%s\" is not a valid argument for the \"%s\" option.\nValid arguments: s | show | h | hide\n", error_premise, argv[*ai], argv[(*ai) - 1]);
+        exit(EXIT_FAILURE);
+    }
+}
+
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep)
+                 char **sep_color, char *sep,               \
+                 int *show_interface, int *show_rx,         \
+                 int *show_tx, int *show_mac, int *show_ip4,\
+                 int *show_ip6)
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
     int ai = 1;
@@ -31,22 +77,22 @@ void handle_args(char **argv, int argc, int from_config,    \
             }
         }
         // Other options
-        else if(strcmp("-fc", argv[ai]) == 0) {
+        else if(!strcmp("-fc", argv[ai])) {
             handle_color_argument(fields_color, &ai, argc, argv, error_premise);
         }
-        else if(strcmp("-vc", argv[ai]) == 0) {
+        else if(!strcmp("-vc", argv[ai])) {
             handle_color_argument(values_color, &ai, argc, argv, error_premise);
         }
-        else if(strcmp("-sc", argv[ai]) == 0) {
+        else if(!strcmp("-sc", argv[ai])) {
             handle_color_argument(sep_color, &ai, argc, argv, error_premise);
         }
-        else if(strcmp("-lc", argv[ai]) == 0) {
+        else if(!strcmp("-lc", argv[ai])) {
             handle_color_argument(logo_color, &ai, argc, argv, error_premise);
         }
-        else if(strcmp("-ns", argv[ai]) == 0) {
+        else if(!strcmp("-ns", argv[ai])) {
             strcpy(sep, "");
         }
-        else if(strcmp("-s", argv[ai]) == 0) {
+        else if(!strcmp("-s", argv[ai])) {
             if(ai + 1 >= argc) {
                 printf("%sYou must provide a separator to use after the \"-s\" option\n", error_premise);
                 exit(EXIT_FAILURE);
@@ -59,33 +105,29 @@ void handle_args(char **argv, int argc, int from_config,    \
             }
             strcpy(sep, argv[ai]);
         }
+        else if(!strcmp("-if", argv[ai])) {
+            handle_show_argument(show_interface, &ai, argc, argv, error_premise);
+        }
+        else if(!strcmp("-mac", argv[ai])) {
+            handle_show_argument(show_mac, &ai, argc, argv, error_premise);
+        }
+        else if(!strcmp("-ip4", argv[ai])) {
+            handle_show_argument(show_ip4, &ai, argc, argv, error_premise);
+        }
+        else if(!strcmp("-ip6", argv[ai])) {
+            handle_show_argument(show_ip6, &ai, argc, argv, error_premise);
+        }
+        else if(!strcmp("-rx", argv[ai])) {
+            handle_show_argument(show_rx, &ai, argc, argv, error_premise);
+        }
+        else if(!strcmp("-tx", argv[ai])) {
+            handle_show_argument(show_tx, &ai, argc, argv, error_premise);
+        }
         else {
             printf("%sUncrecognized argument: \"%s\"\n", error_premise, argv[ai]);
             exit(EXIT_FAILURE);
         }
         ai++;
-    }
-}
-
-void handle_color_argument(char **dest, int *ai, int argc,  \
-                           char **argv, char *error_premise)
-{
-    if((*ai) + 1 >= argc) {
-        printf("%sYou must provide a color after the \"%s\" option\n", error_premise, argv[*ai]);
-        exit(EXIT_FAILURE);
-    }
-    
-    (*ai)++;
-    argv[*ai][strcspn(argv[*ai], " ")] = '\0';
-    if(strlen(argv[*ai]) > 1) {
-        printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
-        exit(EXIT_FAILURE);
-    }
-
-    int assigned = assign_color(dest, argv[*ai][0]);
-    if(!assigned) {
-        printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
-        exit(EXIT_FAILURE);
     }
 }
 
