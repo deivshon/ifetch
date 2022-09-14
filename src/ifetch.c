@@ -25,7 +25,7 @@ fields_color, (int) MAX_PADDING, "", (int) strlen(sep), "", sep_color, values_co
 
 struct logo {
     char row[LOGO_ROWS_NUM][LOGO_LINE_LENGHT];
-    int rows_used;
+    unsigned int rows_used;
 };
 
 struct logo ethernet_logo = {{
@@ -107,10 +107,10 @@ int main(int argc, char **argv) {
     int mac_present;
 
     char *ip_addr_4[MAX_IPV4_NUM];
-    int ipv4_num = 0;
+    unsigned int ipv4_num = 0;
 
     char *ip_addr_6[MAX_IPV6_NUM];
-    int ipv6_num = 0;    
+    unsigned int ipv6_num = 0;    
 
     char **args;
     int args_num;
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
     assign_logo(&assigned_logo, interface);
     get_logo_space(logo_substitute, assigned_logo);
 
-    int row_index = 0;
+    unsigned int row_index = 0;
 
     output_data(interface, "INTERFACE", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
     row_index++;
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         output_data(ip_addr_4[0], "IPv4", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         free(ip_addr_4[0]);
         row_index++;
-        for(int i = 1; i < ipv4_num; i++) {
+        for(unsigned int i = 1; i < ipv4_num; i++) {
             output_data_padded(ip_addr_4[i], assigned_logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);
             row_index++;
             free(ip_addr_4[i]);
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
         output_data(ip_addr_6[0], "IPv6", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
         free(ip_addr_6[0]);
-        for(int i = 1; i < ipv6_num; i++) {
+        for(unsigned int i = 1; i < ipv6_num; i++) {
             output_data_padded(ip_addr_6[i], assigned_logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);
             row_index++;
             free(ip_addr_6[i]);

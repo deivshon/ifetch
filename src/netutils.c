@@ -55,7 +55,7 @@ int to_formatted_bytes(char *dest, double bytes) {
     char *suffixes[7] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
 
     double approx_bytes = bytes;
-    int divisions = 0;
+    unsigned int divisions = 0;
 
     while(approx_bytes > 1e3 && divisions <= 7) {
         approx_bytes /= 1024;
@@ -85,7 +85,7 @@ int get_ip(char **dest, char *interface_name, enum ipv ip_version) {
     interface_head = interface;
 
     char current_ip[MAX_IP_LENGTH];
-    int c = 0;
+    unsigned int c = 0;
 
     size_t info_size = ip_version == IPv4 ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
     unsigned int family = ip_version == IPv4 ? AF_INET : AF_INET6;
