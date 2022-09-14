@@ -60,7 +60,7 @@ void handle_args(char **argv, int argc, int from_config,    \
     int ai = 1;
     while(ai < argc) {
         // Case for interface
-        if(argv[ai][0] != '-' || strcmp("-i", argv[ai]) == 0) {
+        if(argv[ai][0] != '-' || strcmp("-ifn", argv[ai]) == 0) {
             if(argv[ai][0] == '-') {
                 if(ai + 1 >= argc) {
                     printf("%sYou must provide an interface after the \"-i\" option\n", error_premise);
