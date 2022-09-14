@@ -7,6 +7,8 @@ else
 	CFLAGS = -Wall -Wextra -O2
 endif
 
+.PHONY: clean
+
 ifetch: ifetch_main.o netutils_nm.o argutils_nm.o
 	gcc $(CFLAGS) $^ -o ifetch
 
@@ -17,4 +19,4 @@ ifetch: ifetch_main.o netutils_nm.o argutils_nm.o
 	gcc $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm *.o ifetch
+	rm -f *.o ifetch
