@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
+#define space_chars " \t\n\v\f\r"
 
 static void step_arg_next(char **argv, int argc, int *ai,   \
                           char *error_premise) {
@@ -18,7 +21,6 @@ static void step_arg_next(char **argv, int argc, int *ai,   \
 static void handle_color_argument(char **dest, int *ai, char **argv,    \
                                   char *error_premise)
 {
-    argv[*ai][strcspn(argv[*ai], " ")] = '\0';
     if(strlen(argv[*ai]) > 1) {
         printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
@@ -34,8 +36,6 @@ static void handle_color_argument(char **dest, int *ai, char **argv,    \
 static void handle_show_argument(int *dest, int *ai, char **argv,   \
                                  char *error_premise)
 {
-    argv[*ai][strcspn(argv[*ai], " ")] = '\0';
-
     if(!strcmp("s", argv[*ai]) || !strcmp("show", argv[*ai]))
         (*dest) = 1;
     else if(!strcmp("h", argv[*ai]) || !strcmp("hide", argv[*ai]))
@@ -197,34 +197,55 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
 
     (*argv) = calloc(MAX_ARGS, sizeof(char *));
 
-    int i = 1;
     char buf[MAX_ARG_SIZE * 2 + 1];
     char *buf_split;
-    int len_add;
+    int start;
+    char *arg;
 
+    int len_add;
+    int i = 1;
     while(i < MAX_ARGS) {
         if(!fgets(buf, MAX_ARG_SIZE * 2 + 1, fs)) break;
-        if(buf[0] == '#') continue;
         buf[strcspn(buf, "\n")] = '\0';
 
         buf_split = strtok(buf, "=");
-        if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
 
-        len_add = buf_split[0] != '-' ? 1 : 0;
+        for(start = 0; isspace(buf_split[start]); start++);
+        arg = buf_split + sizeof(char) * start;
+        arg[strcspn(arg, space_chars)] = '\0';
 
-        (*argv)[i] = malloc(sizeof(char) * (strlen(buf_split) + 1 + len_add));
-        if(buf_split[0] != '-') 
-            sprintf((*argv)[i], "%s%s", "-", buf_split);
+        if(arg[0] == '#') continue;
+        if(strlen(arg) > MAX_ARG_SIZE) exit_config_error(arg);
+
+        len_add = arg[0] != '-' ? 1 : 0;
+        (*argv)[i] = malloc(sizeof(char) * (strlen(arg) + 1 + len_add));
+        if(arg[0] != '-')
+            sprintf((*argv)[i], "%s%s", "-", arg);
         else
-            strcpy((*argv)[i], buf_split);
+            strcpy((*argv)[i], arg);
         i++;
 
         buf_split = strtok(NULL, "=");
         if(buf_split == NULL) continue;
-        if(strlen(buf_split) > MAX_ARG_SIZE) exit_config_error(buf_split);
-    
-        (*argv)[i] = malloc(sizeof(char) * (strlen(buf_split) + 1));
-        strcpy((*argv)[i], buf_split);
+
+        for(start = 0; isspace(buf_split[start]); start++);
+        if(buf_split[start] == '"') {
+            for(; buf_split[start] == '"'; start++);
+            arg = buf_split + sizeof(char) * start;
+
+            for(start++; buf_split[start] != '"'; start++);
+            buf_split[start] = '\0';
+        }
+        else {
+            arg = buf_split + sizeof(char) * start;
+
+            // If the argument was not quoted, trailing spaces should not be considered
+            arg[strcspn(arg, space_chars)] = '\0';
+        }
+
+        if(strlen(arg) > MAX_ARG_SIZE) exit_config_error(arg);
+        (*argv)[i] = malloc(sizeof(char) * (strlen(arg) + 1));
+        strcpy((*argv)[i], arg);
         i++;
     }
 
