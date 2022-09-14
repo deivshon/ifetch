@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define space_chars " \t\n\v\f\r"
+#define spacing_chars " \t\n\v\f\r"
 
 static void step_arg_next(char **argv, int argc, int *ai,   \
                           char *error_premise) {
@@ -212,7 +212,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
 
         for(start = 0; isspace(buf_split[start]); start++);
         arg = buf_split + sizeof(char) * start;
-        arg[strcspn(arg, space_chars)] = '\0';
+        arg[strcspn(arg, spacing_chars)] = '\0';
 
         if(arg[0] == '#') continue;
         if(strlen(arg) > MAX_ARG_SIZE) exit_config_error(arg);
@@ -240,7 +240,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
             arg = buf_split + sizeof(char) * start;
 
             // If the argument was not quoted, trailing spaces should not be considered
-            arg[strcspn(arg, space_chars)] = '\0';
+            arg[strcspn(arg, spacing_chars)] = '\0';
         }
 
         if(strlen(arg) > MAX_ARG_SIZE) exit_config_error(arg);
