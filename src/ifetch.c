@@ -167,9 +167,12 @@ int main(int argc, char **argv) {
         get_bytes(&rx, data[IF_INDEX].data, RX);
         get_bytes(&tx, data[IF_INDEX].data, TX);
     }
+    
+    data[RX_INDEX].exists = rx != -1;
+    data[TX_INDEX].exists = tx != -1;
 
-    if(data[RX_INDEX].show && rx != -1) to_formatted_bytes(data[RX_INDEX].data, rx);
-    if(data[TX_INDEX].show && tx != -1) to_formatted_bytes(data[TX_INDEX].data, tx);
+    if(data[RX_INDEX].show && data[RX_INDEX].exists) to_formatted_bytes(data[RX_INDEX].data, rx);
+    if(data[TX_INDEX].show && data[TX_INDEX].exists) to_formatted_bytes(data[TX_INDEX].data, tx);
     if(data[MAC_INDEX].show) data[MAC_INDEX].exists = get_mac(data[MAC_INDEX].data, data[IF_INDEX].data);
     if(show_ip4) ipv4_num = get_ip(ip_addr_4, data[IF_INDEX].data, IPv4);
     if(show_ip6) ipv6_num = get_ip(ip_addr_6, data[IF_INDEX].data, IPv6);
@@ -198,11 +201,11 @@ int main(int argc, char **argv) {
         free_ips(ip_addr_6, ipv6_num);
     }
 
-    if(data[RX_INDEX].show && rx != -1) {
+    if(data[RX_INDEX].show && data[RX_INDEX].exists) {
         output_data(data[RX_INDEX].data, "RX", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
-    if(data[TX_INDEX].show && tx != -1) {
+    if(data[TX_INDEX].show && data[TX_INDEX].exists) {
         output_data(data[TX_INDEX].data, "TX", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
         row_index++;
     }
