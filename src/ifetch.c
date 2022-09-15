@@ -5,14 +5,11 @@
 #include <pwd.h>
 #include "../hs/netutils.h"
 #include "../hs/argutils.h"
+#include "../hs/ifetch.h"
 
 #define CONFIG_PATH_SUFFIX ".config/ifetch/ifetchrc"
 
-#define LOGO_ROWS_NUM 8
-#define LOGO_LINE_LENGHT 64
 #define MAX_PADDING 11
-#define MAX_DATA_LENGTH 64
-#define MAX_LABEL_LENGTH 16
 
 #define IF_INDEX    0
 #define MAC_INDEX   1
@@ -30,20 +27,6 @@ fields_color, (int) (MAX_PADDING - strlen(label)), "", label, sep_color, sep, va
 #define output_data_padded(data, logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color)   \
 printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
 fields_color, (int) MAX_PADDING, "", (int) strlen(sep), "", sep_color, values_color, data);
-
-struct logo {
-    char row[LOGO_ROWS_NUM][LOGO_LINE_LENGHT];
-    unsigned int rows_used;
-};
-
-struct data_item {
-    char data[MAX_DATA_LENGTH];
-    char label[MAX_LABEL_LENGTH];
-    int label_chosen;
-    int show;
-
-    int exists;
-};
 
 struct logo ethernet_logo = {{
     "+---------------+",
