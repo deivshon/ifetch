@@ -167,7 +167,8 @@ int main(int argc, char **argv) {
         get_bytes(&rx, data[IF_INDEX].data, RX);
         get_bytes(&tx, data[IF_INDEX].data, TX);
     }
-    
+
+    data[IF_INDEX].exists = 1;
     data[RX_INDEX].exists = rx != -1;
     data[TX_INDEX].exists = tx != -1;
 
@@ -181,14 +182,11 @@ int main(int argc, char **argv) {
 
     unsigned int row_index = 0;
 
-    if(data[IF_INDEX].show) {
-        output_data(data[IF_INDEX].data, "INTERFACE", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-        row_index++;
-    }
-
-    if(data[MAC_INDEX].show && data[MAC_INDEX].exists) {
-        output_data(data[MAC_INDEX].data, "MAC", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-        row_index++;
+    for(unsigned int i = 0; i <= MAC_INDEX; i++) {
+        if(data[i].show && data[i].exists) {
+            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+            row_index++;
+        }
     }
 
     if(show_ip4) {
@@ -201,13 +199,11 @@ int main(int argc, char **argv) {
         free_ips(ip_addr_6, ipv6_num);
     }
 
-    if(data[RX_INDEX].show && data[RX_INDEX].exists) {
-        output_data(data[RX_INDEX].data, "RX", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-        row_index++;
-    }
-    if(data[TX_INDEX].show && data[TX_INDEX].exists) {
-        output_data(data[TX_INDEX].data, "TX", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-        row_index++;
+    for(unsigned int i = RX_INDEX; i < FIELDS_NUM; i++) {
+        if(data[i].show && data[i].exists) {
+            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+            row_index++;
+        }
     }
 
     while(row_index < assigned_logo->rows_used) {
