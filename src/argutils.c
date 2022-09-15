@@ -206,7 +206,6 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
     int i = 1;
     while(i < MAX_ARGS) {
         if(!fgets(buf, MAX_ARG_SIZE * 2 + 1, fs)) break;
-        buf[strcspn(buf, "\n")] = '\0';
 
         buf_split = strtok(buf, "=");
 
@@ -226,7 +225,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
         i++;
         if(i >= MAX_ARGS) break;
 
-        buf_split = strtok(NULL, "=");
+        buf_split = strtok(NULL, "\n");
         if(buf_split == NULL) continue;
 
         for(start = 0; isspace(buf_split[start]); start++);
