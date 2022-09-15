@@ -28,6 +28,16 @@ fields_color, (int) (MAX_PADDING - strlen(label)), "", label, sep_color, sep, va
 printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
 fields_color, (int) MAX_PADDING, "", (int) strlen(sep), "", sep_color, values_color, data);
 
+#define print_ips(ips, num, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color)    \
+    if(num > 0) {                                                                                                               \
+        output_data(ips[0], label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);   \
+        row_index++;                                                                                                            \
+        for(unsigned int i = 1; i < num; i++) {                                                                                 \
+            output_data_padded(ips[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);    \
+            row_index++;                                                                                                        \
+        }                                                                                                                       \
+    }                                                                                                                           \
+
 struct logo ethernet_logo = {{
     "+---------------+",
     "|   +-------+   |",
@@ -86,6 +96,10 @@ void init_data_items(struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) {
         items[i].show = 1;
     }
+}
+
+void free_ips(char **ips, unsigned int num) {
+    for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
 
 int main(int argc, char **argv) {
@@ -174,26 +188,14 @@ int main(int argc, char **argv) {
         row_index++;
     }
 
-    if(show_ip4 && ipv4_num > 0) {
-        output_data(ip_addr_4[0], "IPv4", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-        free(ip_addr_4[0]);
-        row_index++;
-        for(unsigned int i = 1; i < ipv4_num; i++) {
-            output_data_padded(ip_addr_4[i], assigned_logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);
-            row_index++;
-            free(ip_addr_4[i]);
-        }
+    if(show_ip4) {
+        print_ips(ip_addr_4, ipv4_num, "IPv4", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+        free_ips(ip_addr_4, ipv4_num);
     }
 
-    if(show_ip6 && ipv6_num > 0) {
-        output_data(ip_addr_6[0], "IPv6", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
-        row_index++;
-        free(ip_addr_6[0]);
-        for(unsigned int i = 1; i < ipv6_num; i++) {
-            output_data_padded(ip_addr_6[i], assigned_logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);
-            row_index++;
-            free(ip_addr_6[i]);
-        }
+    if(show_ip6) {
+        print_ips(ip_addr_6, ipv6_num, "IPv6", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+        free_ips(ip_addr_6, ipv6_num);
     }
 
     if(data[RX_INDEX].show && rx != -1) {
