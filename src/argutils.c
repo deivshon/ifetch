@@ -213,7 +213,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
         arg = buf_split + sizeof(char) * start;
         arg[strcspn(arg, spacing_chars)] = '\0';
 
-        if(arg[0] == '#') continue;
+        if(arg[0] == '#' || arg[0] == '\0') continue;
         if(strlen(arg) > MAX_ARG_SIZE) exit_config_error(arg);
 
         len_add = arg[0] != '-' ? 1 : 0;
