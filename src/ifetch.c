@@ -28,15 +28,15 @@ fields_color, (int) (MAX_PADDING - strlen(label)), "", label, sep_color, sep, va
 printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
 fields_color, (int) MAX_PADDING, "", (int) strlen(sep), "", sep_color, values_color, data);
 
-#define print_ips(ips, num, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color)    \
-    if(num > 0) {                                                                                                               \
-        output_data(ips[0], label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);   \
-        row_index++;                                                                                                            \
-        for(unsigned int i = 1; i < num; i++) {                                                                                 \
-            output_data_padded(ips[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);    \
-            row_index++;                                                                                                        \
-        }                                                                                                                       \
-    }                                                                                                                           \
+#define print_ips(ips, num, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color)\
+    if(num > 0) {\
+        output_data(ips[0], label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);\
+        row_index++;\
+        for(unsigned int i = 1; i < num; i++) {\
+            output_data_padded(ips[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);\
+            row_index++;\
+        }\
+    }\
 
 struct logo ethernet_logo = {{
     "+---------------+",
