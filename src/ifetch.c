@@ -212,4 +212,5 @@ int main(int argc, char **argv) {
     }
 
     printf("%s\n", WHITE);
+    exit(EXIT_SUCCESS);
 }
