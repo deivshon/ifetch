@@ -9,22 +9,20 @@
 
 #define CONFIG_PATH_SUFFIX ".config/ifetch/ifetchrc"
 
-#define MAX_PADDING 11
-
-#define output_data(data, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color)  \
+#define output_data(data, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding)  \
 printf("%s%s%s%*s%s%s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,          \
-fields_color, (int) (MAX_PADDING - strlen(label)), "", label, sep_color, sep, values_color, data);
+fields_color, (int) (max_padding - strlen(label)), "", label, sep_color, sep, values_color, data);
 
-#define output_data_padded(data, logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color)   \
+#define output_data_padded(data, logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color, max_padding)   \
 printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
-fields_color, (int) MAX_PADDING, "", (int) strlen(sep), "", sep_color, values_color, data);
+fields_color, (int) max_padding, "", (int) strlen(sep), "", sep_color, values_color, data);
 
-#define print_ips(ips, num, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color)\
+#define print_ips(ips, num, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding)\
     if(num > 0) {\
-        output_data(ips[0], label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);\
+        output_data(ips[0], label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);\
         row_index++;\
         for(unsigned int i = 1; i < num; i++) {\
-            output_data_padded(ips[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color);\
+            output_data_padded(ips[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color, max_padding);\
             row_index++;\
         }\
     }\
@@ -105,6 +103,25 @@ void free_ips(char **ips, unsigned int num) {
     for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
 
+unsigned int get_max_padding(struct data_item items[], char *ip4_label,  \
+                    int ip4_num, int show_ip4, char *ip6_label, \
+                    int ip6_num, int show_ip6) {
+    int max = 0;
+    int cur_len;
+    cur_len = strlen(ip4_label);
+    if(cur_len > max && show_ip4 && ip4_num > 0) max = cur_len;
+    cur_len = strlen(ip6_label);
+    if(cur_len > max && show_ip6 && ip6_num > 0) max = cur_len;
+
+    for(int i = 0; i < FIELDS_NUM; i++) {
+        if(items[i].show && items[i].exists) {
+            cur_len = strlen(items[i].label);
+            if(cur_len > max) max = cur_len;
+        }
+    }
+    return max;
+}
+
 int main(int argc, char **argv) {
     char *home_dir = getpwuid(getuid())->pw_dir;
     char config_path[MAX_PATH_LENGTH];
@@ -120,6 +137,8 @@ int main(int argc, char **argv) {
 
     struct logo *assigned_logo;
     char logo_substitute[64];
+    unsigned int max_padding; 
+    int logo_fields_distance = 2;
 
     char sep[9] = ":";
 
@@ -128,10 +147,12 @@ int main(int argc, char **argv) {
     char *ip_addr_4[MAX_IPV4_NUM];
     unsigned int ipv4_num = 0;
     int show_ip4 = 1;
+    char ip4_label[MAX_LABEL_LENGTH] = "IPv4";
 
     char *ip_addr_6[MAX_IPV6_NUM];
     unsigned int ipv6_num = 0;
     int show_ip6 = 1;
+    char ip6_label[MAX_LABEL_LENGTH] = "IPv6";
 
     char **args;
     int args_num;
@@ -172,28 +193,30 @@ int main(int argc, char **argv) {
     assign_logo(&assigned_logo, data[IF_INDEX].data);
     get_logo_space(logo_substitute, assigned_logo);
 
+    max_padding = get_max_padding(data, ip4_label, ipv4_num, show_ip4, ip6_label, ipv6_num, show_ip6) + logo_fields_distance;
+
     unsigned int row_index = 0;
 
     for(unsigned int i = 0; i <= MAC_INDEX; i++) {
         if(data[i].show && data[i].exists) {
-            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
             row_index++;
         }
     }
 
     if(show_ip4) {
-        print_ips(ip_addr_4, ipv4_num, "IPv4", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+        print_ips(ip_addr_4, ipv4_num, ip4_label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
         free_ips(ip_addr_4, ipv4_num);
     }
 
     if(show_ip6) {
-        print_ips(ip_addr_6, ipv6_num, "IPv6", assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+        print_ips(ip_addr_6, ipv6_num, ip6_label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
         free_ips(ip_addr_6, ipv6_num);
     }
 
     for(unsigned int i = RX_INDEX; i < FIELDS_NUM; i++) {
         if(data[i].show && data[i].exists) {
-            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color);
+            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
             row_index++;
         }
     }
