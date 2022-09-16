@@ -11,15 +11,6 @@
 
 #define MAX_PADDING 11
 
-#define IF_INDEX    0
-#define MAC_INDEX   1
-#define RX_INDEX    2
-#define TX_INDEX    3
-
-#define FIELDS_NUM  4
-
-#define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
-
 #define output_data(data, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color)  \
 printf("%s%s%s%*s%s%s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,          \
 fields_color, (int) (MAX_PADDING - strlen(label)), "", label, sep_color, sep, values_color, data);
@@ -96,6 +87,18 @@ void init_data_items(struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) {
         items[i].show = 1;
     }
+
+    strcpy(items[IF_INDEX].label, "INTERFACE");
+    items[IF_INDEX].data[0] = '\0';
+
+    strcpy(items[MAC_INDEX].label, "MAC");
+    strcpy(items[RX_INDEX].label, "RX");
+    strcpy(items[TX_INDEX].label, "TX");
+
+    strcpy(items[IF_INDEX].arg_name, "-if");
+    strcpy(items[MAC_INDEX].arg_name, "-mac");
+    strcpy(items[RX_INDEX].arg_name, "-rx");
+    strcpy(items[TX_INDEX].arg_name, "-tx");
 }
 
 void free_ips(char **ips, unsigned int num) {
@@ -109,13 +112,6 @@ int main(int argc, char **argv) {
 
     struct data_item data[FIELDS_NUM];
     init_data_items(data);
-
-    strcpy(data[IF_INDEX].label, "INTERFACE");
-    data[IF_INDEX].data[0] = '\0';
-
-    strcpy(data[MAC_INDEX].label, "MAC");
-    strcpy(data[RX_INDEX].label, "RX");
-    strcpy(data[TX_INDEX].label, "TX");
 
     char *logo_color = BWHITE;
     char *fields_color = BCYAN;
@@ -142,9 +138,7 @@ int main(int argc, char **argv) {
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, data[IF_INDEX].data, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, &data[IF_INDEX].show,               \
-                    &data[RX_INDEX].show, &data[TX_INDEX].show, &data[MAC_INDEX].show,  \
-                    &show_ip4, &show_ip6);
+                    &values_color, &sep_color, sep, &show_ip4, &show_ip6, data);
         free_args(args, args_num);
     }
 
@@ -152,9 +146,7 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, data[IF_INDEX].data, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, &data[IF_INDEX].show,               \
-                &data[RX_INDEX].show, &data[TX_INDEX].show, &data[MAC_INDEX].show, &show_ip4,   \
-                &show_ip6);
+                &values_color, &sep_color, sep, &show_ip4, &show_ip6, data);
 
     if(strlen(data[IF_INDEX].data) == 0) {
         int interface_available = get_max_interface(data[IF_INDEX].data, &rx, &tx);

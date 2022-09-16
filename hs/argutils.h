@@ -1,6 +1,8 @@
 #ifndef ARGUTILS
 #define ARGUTILS
 
+#include "ifetch.h"
+
 #define MAX_ARGS 128
 #define MAX_ARG_SIZE 16
 
@@ -22,10 +24,8 @@
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep,               \
-                 int *show_interface, int *show_rx,         \
-                 int *show_tx, int *show_mac, int *show_ip4,\
-                 int *show_ip6);
+                 char **sep_color, char *sep, int *show_ip4,\
+                 int *show_ip6, struct data_item items[]);
 
 int assign_color(char **dest, char code);
 

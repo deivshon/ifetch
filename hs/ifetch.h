@@ -7,6 +7,15 @@
 #define MAX_LABEL_LENGTH 16
 #define MAX_SEP_LENGTH 8
 
+#define IF_INDEX    0
+#define MAC_INDEX   1
+#define RX_INDEX    2
+#define TX_INDEX    3
+
+#define FIELDS_NUM  4
+
+#define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
+
 struct logo {
     char row[LOGO_ROWS_NUM][LOGO_LINE_LENGHT];
     unsigned int rows_used;
@@ -19,6 +28,8 @@ struct data_item {
     int show;
 
     int exists;
+
+    char arg_name[8];
 };
 
 #endif

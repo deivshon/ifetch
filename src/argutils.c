@@ -1,5 +1,6 @@
 #include "../hs/argutils.h"
 #include "../hs/netutils.h"
+#include "../hs/ifetch.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -46,15 +47,36 @@ static void handle_show_argument(int *dest, int *ai, char **argv,   \
     }
 }
 
+static void handle_data_argument(char **argv, int argc,             \
+                                 struct data_item *data, int *ai,   \
+                                 char *error_premise)
+{
+    // Show argument case
+    if(strlen(argv[*ai]) == strlen(data->arg_name)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_show_argument(&(data->show), ai, argv, error_premise);
+    }
+}
+
+static int data_arg_index(int *dest, char *arg, struct data_item items[]) {
+    for(int i = 0; i < FIELDS_NUM; i++) {
+        if(starts_with(items[i].arg_name, arg)) {
+            (*dest) = i;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep,               \
-                 int *show_interface, int *show_rx,         \
-                 int *show_tx, int *show_mac, int *show_ip4,\
-                 int *show_ip6)
+                 char **sep_color, char *sep, int *show_ip4,\
+                 int *show_ip6, struct data_item items[])
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
+    int data_index = -1;
     int ai = 1;
     while(ai < argc) {
         // Case for interface
@@ -99,13 +121,8 @@ void handle_args(char **argv, int argc, int from_config,    \
             }
             strcpy(sep, argv[ai]);
         }
-        else if(!strcmp("-if", argv[ai])) {
-            step_arg_next(argv, argc, &ai, error_premise);
-            handle_show_argument(show_interface, &ai, argv, error_premise);
-        }
-        else if(!strcmp("-mac", argv[ai])) {
-            step_arg_next(argv, argc, &ai, error_premise);
-            handle_show_argument(show_mac, &ai, argv, error_premise);
+        else if(data_arg_index(&data_index, argv[ai], items)) {
+            handle_data_argument(argv, argc, &(items[data_index]), &ai, error_premise);
         }
         else if(!strcmp("-ip4", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
@@ -114,14 +131,6 @@ void handle_args(char **argv, int argc, int from_config,    \
         else if(!strcmp("-ip6", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             handle_show_argument(show_ip6, &ai, argv, error_premise);
-        }
-        else if(!strcmp("-rx", argv[ai])) {
-            step_arg_next(argv, argc, &ai, error_premise);
-            handle_show_argument(show_rx, &ai, argv, error_premise);
-        }
-        else if(!strcmp("-tx", argv[ai])) {
-            step_arg_next(argv, argc, &ai, error_premise);
-            handle_show_argument(show_tx, &ai, argv, error_premise);
         }
         else {
             printf("%sUncrecognized argument: \"%s\"\n", error_premise, argv[ai]);
