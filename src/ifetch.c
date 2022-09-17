@@ -138,7 +138,8 @@ int main(int argc, char **argv) {
     struct logo *assigned_logo;
     char logo_substitute[64];
     unsigned int max_padding; 
-    int logo_fields_distance = 2;
+    unsigned int logo_fields_distance = 2;
+    unsigned int min_padding = 0;
 
     char sep[9] = ":";
 
@@ -159,7 +160,8 @@ int main(int argc, char **argv) {
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, data[IF_INDEX].data, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, &show_ip4, &show_ip6, data);
+                    &values_color, &sep_color, sep, &show_ip4, &show_ip6, data,         \
+                    &logo_fields_distance, &min_padding);
         free_args(args, args_num);
     }
 
@@ -167,7 +169,8 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, data[IF_INDEX].data, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, &show_ip4, &show_ip6, data);
+                &values_color, &sep_color, sep, &show_ip4, &show_ip6, data,         \
+                &logo_fields_distance, &min_padding);
 
     if(strlen(data[IF_INDEX].data) == 0) {
         int interface_available = get_max_interface(data[IF_INDEX].data, &rx, &tx);
@@ -194,6 +197,7 @@ int main(int argc, char **argv) {
     get_logo_space(logo_substitute, assigned_logo);
 
     max_padding = get_max_padding(data, ip4_label, ipv4_num, show_ip4, ip6_label, ipv6_num, show_ip6) + logo_fields_distance;
+    if(max_padding < min_padding) max_padding = min_padding;
 
     unsigned int row_index = 0;
 

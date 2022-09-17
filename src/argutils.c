@@ -8,6 +8,7 @@
 #include <ctype.h>
 
 #define spacing_chars " \t\n\v\f\r"
+#define is_digit(c) (c >= 48 && c <= 57)
 
 static void step_arg_next(char **argv, int argc, int *ai,   \
                           char *error_premise) {
@@ -70,11 +71,33 @@ static int data_arg_index(int *dest, char *arg, struct data_item items[]) {
     return 0;
 }
 
+static int is_number(char *str) {
+    for(unsigned int i = 0; i < strlen(str); i++) {
+        if(!is_digit(str[i])) return 0;
+    }
+
+    return 1;
+}
+
+static void handle_num_argument(unsigned int *dest,     \
+                                char **argv, int ai,    \
+                                char *error_premise)
+{
+    if(!is_number(argv[ai])) {
+        printf("%s\"%s\" is an invalid argument for the %s option\n", error_premise, argv[ai], argv[ai - 1]);
+        exit(EXIT_FAILURE);
+    }
+
+    (*dest) = atoi(argv[ai]);
+}
+
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
                  char **sep_color, char *sep, int *show_ip4,\
-                 int *show_ip6, struct data_item items[])
+                 int *show_ip6, struct data_item items[],   \
+                 unsigned int *logo_field_distance,         \
+                 unsigned int *min_padding)
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
     int data_index = -1;
@@ -132,6 +155,24 @@ void handle_args(char **argv, int argc, int from_config,    \
         else if(!strcmp("-ip6", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             handle_show_argument(show_ip6, &ai, argv, error_premise);
+        }
+        else if(!strcmp("-mld", argv[ai])) {
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_num_argument(logo_field_distance, argv, ai, error_premise);
+
+            if((*logo_field_distance) > 64) {
+                printf("%s\"%s\" is an invalid argument for the %s option\nLogo-field distance can have a maximum value of 64\n", error_premise, argv[ai], argv[ai - 1]);\
+                exit(EXIT_FAILURE);
+            }
+        }
+        else if(!strcmp("-mp", argv[ai])) {
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_num_argument(min_padding, argv, ai, error_premise);
+
+            if((*min_padding) > 64) {
+                printf("%s\"%s\" is an invalid argument for the %s option\nMinimum padding can have a maximum value of 64\n", error_premise, argv[ai], argv[ai - 1]);\
+                exit(EXIT_FAILURE);
+            }
         }
         else {
             printf("%sUncrecognized argument: \"%s\"\n", error_premise, argv[ai]);
