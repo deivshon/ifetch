@@ -61,8 +61,7 @@ static void handle_data_argument(char **argv, int argc,             \
 
 static int data_arg_index(int *dest, char *arg, struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) {
-        if(starts_with(items[i].arg_name, arg) &&   \
-           starts_with(arg, items[i].arg_name)) {
+        if(starts_with(arg, items[i].arg_name)) {
             (*dest) = i;
             return 1;
         }
