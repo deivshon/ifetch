@@ -103,8 +103,8 @@ void free_ips(char **ips, unsigned int num) {
     for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
 
-unsigned int get_max_padding(struct data_item items[], char *ip4_label,  \
-                    int ip4_num, int show_ip4, char *ip6_label, \
+unsigned int get_max_padding(struct data_item items[], char *ip4_label, \
+                    int ip4_num, int show_ip4, char *ip6_label,         \
                     int ip6_num, int show_ip6) {
     int max = 0;
     int cur_len;
