@@ -2,8 +2,7 @@
 #define NETUTILS
 
 #define INTERFACE_SIZE 32
-#define MAX_IPV6_NUM 2
-#define MAX_IPV4_NUM 2
+#define MAX_IPVX_NUM 8
 #define MAX_IP_LENGTH 128
 
 #define MAX_PATH_LENGTH 4096

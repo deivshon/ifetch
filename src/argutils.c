@@ -111,8 +111,9 @@ static void handle_num_argument(unsigned int *dest,     \
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep, int *show_ip4,\
-                 int *show_ip6, struct data_item items[],   \
+                 char **sep_color, char *sep,               \
+                 struct ip_item *ip4, struct ip_item *ip6,  \
+                 struct data_item items[],                  \
                  unsigned int *logo_field_distance,         \
                  unsigned int *min_padding)
 {
@@ -167,11 +168,11 @@ void handle_args(char **argv, int argc, int from_config,    \
         }
         else if(!strcmp("-ip4", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
-            handle_show_argument(show_ip4, &ai, argv, error_premise);
+            handle_show_argument(&(ip4->show), &ai, argv, error_premise);
         }
         else if(!strcmp("-ip6", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
-            handle_show_argument(show_ip6, &ai, argv, error_premise);
+            handle_show_argument(&(ip6->show), &ai, argv, error_premise);
         }
         else if(!strcmp("-mld", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);

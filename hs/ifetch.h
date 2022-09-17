@@ -1,6 +1,8 @@
 #ifndef IFETCH
 #define IFETCH
 
+#include "netutils.h"
+
 #define LOGO_ROWS_NUM 8
 #define LOGO_LINE_LENGHT 64
 #define MAX_DATA_LENGTH 64
@@ -24,10 +26,19 @@ struct logo {
 struct data_item {
     char data[MAX_DATA_LENGTH];
     char label[MAX_LABEL_LENGTH];
-    int label_chosen;
     int show;
 
     int exists;
+
+    char arg_name[8];
+};
+
+struct ip_item {
+    char *data[MAX_IPVX_NUM];
+    char label[MAX_LABEL_LENGTH];
+    int show;
+
+    unsigned int ips_num;
 
     char arg_name[8];
 };

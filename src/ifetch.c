@@ -99,6 +99,11 @@ void init_data_items(struct data_item items[]) {
     strcpy(items[TX_INDEX].arg_name, "-tx");
 }
 
+void init_ip_item(struct ip_item *ip) {
+    ip->show = 1;
+    ip->ips_num = 0;
+}
+
 void free_ips(char **ips, unsigned int num) {
     for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
@@ -144,23 +149,22 @@ int main(int argc, char **argv) {
     char sep[9] = ":";
 
     double rx = -1, tx = -1;
+    
+    struct ip_item ip4;
+    strcpy(ip4.label, "IPv4");
 
-    char *ip_addr_4[MAX_IPV4_NUM];
-    unsigned int ipv4_num = 0;
-    int show_ip4 = 1;
-    char ip4_label[MAX_LABEL_LENGTH] = "IPv4";
+    struct ip_item ip6;
+    strcpy(ip6.label, "IPv6");
 
-    char *ip_addr_6[MAX_IPV6_NUM];
-    unsigned int ipv6_num = 0;
-    int show_ip6 = 1;
-    char ip6_label[MAX_LABEL_LENGTH] = "IPv6";
+    init_ip_item(&ip4);
+    init_ip_item(&ip6);
 
     char **args;
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, data[IF_INDEX].data, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, &show_ip4, &show_ip6, data,         \
+                    &values_color, &sep_color, sep, &ip4, &ip6, data,         \
                     &logo_fields_distance, &min_padding);
         free_args(args, args_num);
     }
@@ -169,7 +173,7 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, data[IF_INDEX].data, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, &show_ip4, &show_ip6, data,         \
+                &values_color, &sep_color, sep, &ip4, &ip6, data,         \
                 &logo_fields_distance, &min_padding);
 
     if(strlen(data[IF_INDEX].data) == 0) {
@@ -191,12 +195,12 @@ int main(int argc, char **argv) {
     if(data[RX_INDEX].show && data[RX_INDEX].exists) to_formatted_bytes(data[RX_INDEX].data, rx);
     if(data[TX_INDEX].show && data[TX_INDEX].exists) to_formatted_bytes(data[TX_INDEX].data, tx);
     if(data[MAC_INDEX].show) data[MAC_INDEX].exists = get_mac(data[MAC_INDEX].data, data[IF_INDEX].data);
-    if(show_ip4) ipv4_num = get_ip(ip_addr_4, data[IF_INDEX].data, IPv4);
-    if(show_ip6) ipv6_num = get_ip(ip_addr_6, data[IF_INDEX].data, IPv6);
+    if(ip4.show) ip4.ips_num = get_ip(ip4.data, data[IF_INDEX].data, IPv4);
+    if(ip6.show) ip6.ips_num = get_ip(ip6.data, data[IF_INDEX].data, IPv6);
     assign_logo(&assigned_logo, data[IF_INDEX].data);
     get_logo_space(logo_substitute, assigned_logo);
 
-    max_padding = get_max_padding(data, ip4_label, ipv4_num, show_ip4, ip6_label, ipv6_num, show_ip6) + logo_fields_distance;
+    max_padding = get_max_padding(data, ip4.label, ip4.ips_num, ip4.show, ip6.label, ip6.ips_num, ip6.show) + logo_fields_distance;
     if(max_padding < min_padding) max_padding = min_padding;
 
     unsigned int row_index = 0;
@@ -208,14 +212,14 @@ int main(int argc, char **argv) {
         }
     }
 
-    if(show_ip4) {
-        print_ips(ip_addr_4, ipv4_num, ip4_label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-        free_ips(ip_addr_4, ipv4_num);
+    if(ip4.show) {
+        print_ips(ip4.data, ip4.ips_num, ip4.label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
+        free_ips(ip4.data, ip4.ips_num);
     }
 
-    if(show_ip6) {
-        print_ips(ip_addr_6, ipv6_num, ip6_label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-        free_ips(ip_addr_6, ipv6_num);
+    if(ip6.show) {
+        print_ips(ip6.data, ip6.ips_num, ip6.label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
+        free_ips(ip6.data, ip6.ips_num);
     }
 
     for(unsigned int i = RX_INDEX; i < FIELDS_NUM; i++) {

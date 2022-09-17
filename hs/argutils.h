@@ -24,8 +24,9 @@
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep, int *show_ip4,\
-                 int *show_ip6, struct data_item items[],   \
+                 char **sep_color, char *sep,               \
+                 struct ip_item *ip4, struct ip_item *ip6,  \
+                 struct data_item items[],                  \
                  unsigned int *logo_field_distance,         \
                  unsigned int *min_padding );
 int assign_color(char **dest, char code);

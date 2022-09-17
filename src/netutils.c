@@ -89,9 +89,8 @@ int get_ip(char **dest, char *interface_name, enum ipv ip_version) {
 
     size_t info_size = ip_version == IPv4 ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
     unsigned int family = ip_version == IPv4 ? AF_INET : AF_INET6;
-    unsigned int max_ips = ip_version == IPv4 ? MAX_IPV4_NUM : MAX_IPV6_NUM;
 
-    while(interface != NULL && c < max_ips) {
+    while(interface != NULL && c < MAX_IPVX_NUM) {
         if (interface->ifa_addr == NULL) {
             interface = interface->ifa_next;
             continue; 
