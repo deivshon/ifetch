@@ -56,8 +56,8 @@ static void handle_show_argument(int *dest, int *ai, char **argv,   \
 static void handle_label_argument(char *dest, int *ai, char **argv, \
                                  char *error_premise)
 {
-    if(strlen(argv[*ai]) > MAX_LABEL_LENGTH) {
-        printf("%s\"%s\" is not a valid label. Labels have a maximum length of %d", error_premise, argv[*ai], MAX_LABEL_LENGTH);
+    if(strlen(argv[*ai]) >= MAX_LABEL_LENGTH) {
+        printf("%s\"%s\" is not a valid label. Labels have a maximum length of %d\n", error_premise, argv[*ai], MAX_LABEL_LENGTH);
         exit(EXIT_FAILURE);
     }
 
