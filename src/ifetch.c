@@ -151,9 +151,11 @@ int main(int argc, char **argv) {
     
     struct ip_item ip4;
     strcpy(ip4.label, "IPv4");
+    strcpy(ip4.arg_name, "-ip4");
 
     struct ip_item ip6;
     strcpy(ip6.label, "IPv6");
+    strcpy(ip6.arg_name, "-ip6");
 
     init_ip_item(&ip4);
     init_ip_item(&ip6);
