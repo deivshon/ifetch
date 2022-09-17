@@ -20,6 +20,11 @@ static void step_arg_next(char **argv, int argc, int *ai,   \
     (*ai)++;
 }
 
+static void unrecognized_argument(char *arg, char *error_premise) {
+    printf("%sUnrecognized argument: \"%s\"\n", error_premise, arg);
+    exit(EXIT_FAILURE);
+}
+
 static void handle_color_argument(char **dest, int *ai, char **argv,    \
                                   char *error_premise)
 {
@@ -75,6 +80,7 @@ static void handle_data_argument(char **argv, int argc,             \
         step_arg_next(argv, argc, ai, error_premise);
         handle_label_argument(data->label, ai, argv, error_premise);
     }
+    else unrecognized_argument(argv[*ai], error_premise);
 }
 
 static int data_arg_index(int *dest, char *arg, struct data_item items[]) {
@@ -193,8 +199,7 @@ void handle_args(char **argv, int argc, int from_config,    \
             }
         }
         else {
-            printf("%sUncrecognized argument: \"%s\"\n", error_premise, argv[ai]);
-            exit(EXIT_FAILURE);
+            unrecognized_argument(argv[ai], error_premise);
         }
         ai++;
     }
