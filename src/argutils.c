@@ -48,6 +48,17 @@ static void handle_show_argument(int *dest, int *ai, char **argv,   \
     }
 }
 
+static void handle_label_argument(char *dest, int *ai, char **argv, \
+                                 char *error_premise)
+{
+    if(strlen(argv[*ai]) > MAX_LABEL_LENGTH) {
+        printf("%s\"%s\" is not a valid label. Labels have a maximum length of %d", error_premise, argv[*ai], MAX_LABEL_LENGTH);
+        exit(EXIT_FAILURE);
+    }
+
+    strcpy(dest, argv[*ai]);
+}
+
 static void handle_data_argument(char **argv, int argc,             \
                                  struct data_item *data, int *ai,   \
                                  char *error_premise)
@@ -56,6 +67,13 @@ static void handle_data_argument(char **argv, int argc,             \
     if(strlen(argv[*ai]) == strlen(data->arg_name)) {
         step_arg_next(argv, argc, ai, error_premise);
         handle_show_argument(&(data->show), ai, argv, error_premise);
+        return;
+    }
+
+    char *sub_arg = argv[*ai] + sizeof(char) * strlen(data->arg_name);
+    if(!strcmp("l", sub_arg)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_label_argument(data->label, ai, argv, error_premise);
     }
 }
 
