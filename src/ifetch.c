@@ -17,12 +17,12 @@ fields_color, (int) (max_padding - strlen(label)), "", label, sep_color, sep, va
 printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
 fields_color, (int) max_padding, "", (int) strlen(sep), "", sep_color, values_color, data);
 
-#define print_ips(ips, num, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding)\
-    if(num > 0) {\
-        output_data(ips[0], label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);\
+#define print_ips(ips, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding)\
+    if(ips.ips_num > 0) {\
+        output_data(ips.data[0], ips.label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);\
         row_index++;\
-        for(unsigned int i = 1; i < num; i++) {\
-            output_data_padded(ips[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color, max_padding);\
+        for(unsigned int i = 1; i < ips.ips_num; i++) {\
+            output_data_padded(ips.data[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color, max_padding);\
             row_index++;\
         }\
     }\
@@ -108,15 +108,14 @@ void free_ips(char **ips, unsigned int num) {
     for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
 
-unsigned int get_max_padding(struct data_item items[], char *ip4_label, \
-                    int ip4_num, int show_ip4, char *ip6_label,         \
-                    int ip6_num, int show_ip6) {
+unsigned int get_max_padding(struct data_item items[], struct ip_item ip4,  \
+                             struct ip_item ip6) {
     int max = 0;
     int cur_len;
-    cur_len = strlen(ip4_label);
-    if(cur_len > max && show_ip4 && ip4_num > 0) max = cur_len;
-    cur_len = strlen(ip6_label);
-    if(cur_len > max && show_ip6 && ip6_num > 0) max = cur_len;
+    cur_len = strlen(ip4.label);
+    if(cur_len > max && ip4.show && ip4.ips_num > 0) max = cur_len;
+    cur_len = strlen(ip6.label);
+    if(cur_len > max && ip6.show && ip6.ips_num > 0) max = cur_len;
 
     for(int i = 0; i < FIELDS_NUM; i++) {
         if(items[i].show && items[i].exists) {
@@ -200,7 +199,7 @@ int main(int argc, char **argv) {
     assign_logo(&assigned_logo, data[IF_INDEX].data);
     get_logo_space(logo_substitute, assigned_logo);
 
-    max_padding = get_max_padding(data, ip4.label, ip4.ips_num, ip4.show, ip6.label, ip6.ips_num, ip6.show) + logo_fields_distance;
+    max_padding = get_max_padding(data, ip4, ip6) + logo_fields_distance;
     if(max_padding < min_padding) max_padding = min_padding;
 
     unsigned int row_index = 0;
@@ -213,12 +212,12 @@ int main(int argc, char **argv) {
     }
 
     if(ip4.show) {
-        print_ips(ip4.data, ip4.ips_num, ip4.label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
+        print_ips(ip4, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
         free_ips(ip4.data, ip4.ips_num);
     }
 
     if(ip6.show) {
-        print_ips(ip6.data, ip6.ips_num, ip6.label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
+        print_ips(ip6, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
         free_ips(ip6.data, ip6.ips_num);
     }
 
