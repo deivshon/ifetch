@@ -11,10 +11,12 @@
 
 #define IF_INDEX    0
 #define MAC_INDEX   1
-#define RX_INDEX    2
-#define TX_INDEX    3
+#define IP4_INDEX   2
+#define IP6_INDEX   3
+#define RX_INDEX    4
+#define TX_INDEX    5
 
-#define FIELDS_NUM  4
+#define FIELDS_NUM  6
 
 #define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
@@ -28,17 +30,7 @@ struct data_item {
     char label[MAX_LABEL_LENGTH];
     int show;
 
-    int exists;
-
-    char arg_name[8];
-};
-
-struct ip_item {
-    char *data[MAX_IPVX_NUM];
-    char label[MAX_LABEL_LENGTH];
-    int show;
-
-    unsigned int ips_num;
+    int instances;
 
     char arg_name[8];
 };

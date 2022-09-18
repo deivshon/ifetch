@@ -83,25 +83,6 @@ static void handle_data_argument(char **argv, int argc,             \
     else unrecognized_argument(argv[*ai], error_premise);
 }
 
-static void handle_ip_argument(char **argv, int argc,       \
-                               struct ip_item *ip, int *ai, \
-                               char *error_premise)
-{
-    // Show argument case
-    if(strlen(argv[*ai]) == strlen(ip->arg_name)) {
-        step_arg_next(argv, argc, ai, error_premise);
-        handle_show_argument(&(ip->show), ai, argv, error_premise);
-        return;
-    }
-
-    char *sub_arg = argv[*ai] + sizeof(char) * strlen(ip->arg_name);
-    if(!strcmp("l", sub_arg)) {
-        step_arg_next(argv, argc, ai, error_premise);
-        handle_label_argument(ip->label, ai, argv, error_premise);
-    }
-    else unrecognized_argument(argv[*ai], error_premise);
-}
-
 static int data_arg_index(int *dest, char *arg, struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) {
         if(starts_with(arg, items[i].arg_name)) {
@@ -137,7 +118,6 @@ void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, char **logo_color,        \
                  char **fields_color, char **values_color,  \
                  char **sep_color, char *sep,               \
-                 struct ip_item *ip4, struct ip_item *ip6,  \
                  struct data_item items[],                  \
                  unsigned int *logo_field_distance,         \
                  unsigned int *min_padding)
@@ -190,12 +170,6 @@ void handle_args(char **argv, int argc, int from_config,    \
         }
         else if(data_arg_index(&data_index, argv[ai], items)) {
             handle_data_argument(argv, argc, &(items[data_index]), &ai, error_premise);
-        }
-        else if(starts_with(argv[ai], ip4->arg_name)) {
-            handle_ip_argument(argv, argc, ip4, &ai, error_premise);
-        }
-        else if(starts_with(argv[ai], ip6->arg_name)) {
-            handle_ip_argument(argv, argc, ip6, &ai, error_premise);
         }
         else if(!strcmp("-mld", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);

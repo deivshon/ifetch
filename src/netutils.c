@@ -99,8 +99,18 @@ int get_ip(char **dest, char *interface_name, enum ipv ip_version) {
         int gni_res = !getnameinfo(interface->ifa_addr, info_size, current_ip, MAX_IP_LENGTH, NULL, 0, NI_NUMERICHOST);
 
         if(gni_res && strcmp(interface->ifa_name, interface_name) == 0 && interface->ifa_addr->sa_family == family) {
-            dest[c] = malloc(sizeof(char) * MAX_IP_LENGTH);
-            strcpy(dest[c], current_ip);
+            if((*dest) == NULL) {
+                (*dest) = malloc(sizeof(char) * strlen(current_ip) + 1);
+                strcpy((*dest), current_ip);
+            }
+            else {
+                // Memory for: previous content + current IP string + memory for newline
+                (*dest) = realloc((*dest), sizeof(char) * strlen(*dest)
+                       + sizeof(char) * (strlen(current_ip) + 1)
+                       + 1);
+                strcat((*dest), "\n");
+                strcat((*dest), current_ip);
+            }
             c++;
         }
 

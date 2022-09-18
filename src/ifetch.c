@@ -17,15 +17,21 @@ fields_color, (int) (max_padding - strlen(label)), "", label, sep_color, sep, va
 printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
 fields_color, (int) max_padding, "", (int) strlen(sep), "", sep_color, values_color, data);
 
-#define print_ips(ips, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding)\
-    if(ips.ips_num > 0) {\
-        output_data(ips.data[0], ips.label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);\
-        row_index++;\
-        for(unsigned int i = 1; i < ips.ips_num; i++) {\
-            output_data_padded(ips.data[i], logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color, max_padding);\
-            row_index++;\
-        }\
-    }\
+void print_data(struct data_item *item, struct logo *assigned_logo, char *logo_substitute, unsigned int *row_index, char *sep, char *logo_color, char *fields_color, char *values_color, char *sep_color, int max_padding) {
+    char *buf = strtok(item->data, "\n");
+    int i = 0;
+    while(buf != NULL) {
+        if(i == 0) {
+            output_data(buf, item->label, assigned_logo, logo_substitute, (*row_index), sep, logo_color, fields_color, values_color, sep_color, max_padding);
+        }
+        else {
+            output_data_padded(buf, assigned_logo, logo_substitute, (*row_index), logo_color, fields_color, values_color, sep_color, max_padding);
+        }
+        i++;
+        (*row_index)++;
+        buf = strtok(NULL, "\n");
+    }
+}
 
 struct logo ethernet_logo = {{
     "+---------------+",
@@ -83,7 +89,10 @@ void assign_logo(struct logo **dest, char *interface) {
 
 void init_data_items(struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) {
-        items[i].data = malloc(sizeof(char) * MAX_DATA_LENGTH);
+        if(i != IP4_INDEX && i != IP6_INDEX)
+            items[i].data = malloc(sizeof(char) * MAX_DATA_LENGTH);
+        else
+            items[i].data = NULL;
         items[i].show = 1;
     }
 
@@ -92,10 +101,14 @@ void init_data_items(struct data_item items[]) {
 
     strcpy(items[MAC_INDEX].label, "MAC");
     strcpy(items[RX_INDEX].label, "RX");
+    strcpy(items[IP4_INDEX].label, "IPv4");
+    strcpy(items[IP6_INDEX].label, "IPv6");
     strcpy(items[TX_INDEX].label, "TX");
 
     strcpy(items[IF_INDEX].arg_name, "-if");
     strcpy(items[MAC_INDEX].arg_name, "-mac");
+    strcpy(items[IP4_INDEX].arg_name, "-ip4");
+    strcpy(items[IP6_INDEX].arg_name, "-ip6");
     strcpy(items[RX_INDEX].arg_name, "-rx");
     strcpy(items[TX_INDEX].arg_name, "-tx");
 }
@@ -104,26 +117,16 @@ void free_data_items(struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) free(items[i].data);
 }
 
-void init_ip_item(struct ip_item *ip) {
-    ip->show = 1;
-    ip->ips_num = 0;
-}
-
 void free_ips(char **ips, unsigned int num) {
     for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
 
-unsigned int get_max_padding(struct data_item items[], struct ip_item ip4,  \
-                             struct ip_item ip6) {
+unsigned int get_max_padding(struct data_item items[]) {
     int max = 0;
     int cur_len;
-    cur_len = strlen(ip4.label);
-    if(cur_len > max && ip4.show && ip4.ips_num > 0) max = cur_len;
-    cur_len = strlen(ip6.label);
-    if(cur_len > max && ip6.show && ip6.ips_num > 0) max = cur_len;
 
     for(int i = 0; i < FIELDS_NUM; i++) {
-        if(items[i].show && items[i].exists) {
+        if(items[i].show && items[i].instances) {
             cur_len = strlen(items[i].label);
             if(cur_len > max) max = cur_len;
         }
@@ -153,24 +156,13 @@ int main(int argc, char **argv) {
     char sep[9] = ":";
 
     double rx = -1, tx = -1;
-    
-    struct ip_item ip4;
-    strcpy(ip4.label, "IPv4");
-    strcpy(ip4.arg_name, "-ip4");
-
-    struct ip_item ip6;
-    strcpy(ip6.label, "IPv6");
-    strcpy(ip6.arg_name, "-ip6");
-
-    init_ip_item(&ip4);
-    init_ip_item(&ip6);
 
     char **args;
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
         handle_args(args, args_num, 1, data[IF_INDEX].data, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, &ip4, &ip6, data,         \
+                    &values_color, &sep_color, sep, data,         \
                     &logo_fields_distance, &min_padding);
         free_args(args, args_num);
     }
@@ -179,7 +171,7 @@ int main(int argc, char **argv) {
     args_num = argc;
 
     handle_args(args, args_num, 0, data[IF_INDEX].data, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, &ip4, &ip6, data,         \
+                &values_color, &sep_color, sep, data,         \
                 &logo_fields_distance, &min_padding);
 
     if(strlen(data[IF_INDEX].data) == 0) {
@@ -194,44 +186,27 @@ int main(int argc, char **argv) {
         get_bytes(&tx, data[IF_INDEX].data, TX);
     }
 
-    data[IF_INDEX].exists = 1;
-    data[RX_INDEX].exists = rx != -1;
-    data[TX_INDEX].exists = tx != -1;
+    data[IF_INDEX].instances = 1;
+    data[RX_INDEX].instances = rx != -1;
+    data[TX_INDEX].instances = tx != -1;
 
-    if(data[RX_INDEX].show && data[RX_INDEX].exists) to_formatted_bytes(data[RX_INDEX].data, rx);
-    if(data[TX_INDEX].show && data[TX_INDEX].exists) to_formatted_bytes(data[TX_INDEX].data, tx);
-    if(data[MAC_INDEX].show) data[MAC_INDEX].exists = get_mac(data[MAC_INDEX].data, data[IF_INDEX].data);
-    if(ip4.show) ip4.ips_num = get_ip(ip4.data, data[IF_INDEX].data, IPv4);
-    if(ip6.show) ip6.ips_num = get_ip(ip6.data, data[IF_INDEX].data, IPv6);
+    if(data[RX_INDEX].show && data[RX_INDEX].instances) to_formatted_bytes(data[RX_INDEX].data, rx);
+    if(data[TX_INDEX].show && data[TX_INDEX].instances) to_formatted_bytes(data[TX_INDEX].data, tx);
+    if(data[MAC_INDEX].show) data[MAC_INDEX].instances = get_mac(data[MAC_INDEX].data, data[IF_INDEX].data);
+    if(data[IP4_INDEX].show) data[IP4_INDEX].instances = get_ip(&(data[IP4_INDEX].data), data[IF_INDEX].data, IPv4);
+    if(data[IP6_INDEX].show) data[IP6_INDEX].instances = get_ip(&(data[IP6_INDEX].data), data[IF_INDEX].data, IPv6);
     assign_logo(&assigned_logo, data[IF_INDEX].data);
     get_logo_space(logo_substitute, assigned_logo);
 
-    max_padding = get_max_padding(data, ip4, ip6) + logo_fields_distance;
+    max_padding = get_max_padding(data) + logo_fields_distance;
     if(max_padding < min_padding) max_padding = min_padding;
 
     unsigned int row_index = 0;
 
-    for(unsigned int i = 0; i <= MAC_INDEX; i++) {
-        if(data[i].show && data[i].exists) {
-            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-            row_index++;
-        }
-    }
+    for(unsigned int i = 0; i < FIELDS_NUM; i++) {
+        if(data[i].show && data[i].instances) {
+            print_data(&(data[i]), assigned_logo, logo_substitute, &row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
 
-    if(ip4.show) {
-        print_ips(ip4, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-        free_ips(ip4.data, ip4.ips_num);
-    }
-
-    if(ip6.show) {
-        print_ips(ip6, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-        free_ips(ip6.data, ip6.ips_num);
-    }
-
-    for(unsigned int i = RX_INDEX; i < FIELDS_NUM; i++) {
-        if(data[i].show && data[i].exists) {
-            output_data(data[i].data, data[i].label, assigned_logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-            row_index++;
         }
     }
 
