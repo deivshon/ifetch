@@ -112,7 +112,9 @@ void init_data_items(struct data_item items[]) {
 }
 
 void free_data_items(struct data_item items[]) {
-    for(int i = 0; i < FIELDS_NUM; i++) free(items[i].data);
+    for(int i = 0; i < FIELDS_NUM; i++) {
+        if(items[i].data != NULL) free(items[i].data);
+    }
 }
 
 unsigned int get_max_padding(struct data_item items[]) {
