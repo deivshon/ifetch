@@ -9,23 +9,15 @@
 
 #define CONFIG_PATH_SUFFIX ".config/ifetch/ifetchrc"
 
-#define output_data(data, label, logo, logo_substitute, row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding)  \
-printf("%s%s%s%*s%s%s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,          \
-fields_color, (int) (max_padding - strlen(label)), "", label, sep_color, sep, values_color, data);
-
-#define output_data_padded(data, logo, logo_substitute, row_index, logo_color, fields_color, values_color, sep_color, max_padding)   \
-printf("%s%s%s%*s%*s%s%s %s\n", logo_color, row_index < logo->rows_used ? logo->row[row_index] : logo_substitute,       \
-fields_color, (int) max_padding, "", (int) strlen(sep), "", sep_color, values_color, data);
-
 void print_data(struct data_item *item, struct logo *assigned_logo, char *logo_substitute, unsigned int *row_index, char *sep, char *logo_color, char *fields_color, char *values_color, char *sep_color, int max_padding) {
     char *buf = strtok(item->data, "\n");
     int i = 0;
     while(buf != NULL) {
         if(i == 0) {
-            output_data(buf, item->label, assigned_logo, logo_substitute, (*row_index), sep, logo_color, fields_color, values_color, sep_color, max_padding);
+            printf("%s%s%s%*s%s%s%s%s%s\n", logo_color, (*row_index) < assigned_logo->rows_used ? assigned_logo->row[(*row_index)] : logo_substitute, fields_color, (int) (max_padding - strlen(item->label)), "", item->label, sep_color, sep, values_color, buf);
         }
         else {
-            output_data_padded(buf, assigned_logo, logo_substitute, (*row_index), logo_color, fields_color, values_color, sep_color, max_padding);
+            printf("%s%s%s%*s%*s%s%s%s\n", logo_color, (*row_index) < assigned_logo->rows_used ? assigned_logo->row[(*row_index)] : logo_substitute, fields_color, (int) max_padding, "", (int) strlen(sep), "", sep_color, values_color, buf);
         }
         i++;
         (*row_index)++;
@@ -115,10 +107,6 @@ void init_data_items(struct data_item items[]) {
 
 void free_data_items(struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) free(items[i].data);
-}
-
-void free_ips(char **ips, unsigned int num) {
-    for(unsigned int i = 0; i < num; i++) free(ips[i]);
 }
 
 unsigned int get_max_padding(struct data_item items[]) {
