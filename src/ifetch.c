@@ -9,15 +9,15 @@
 
 #define CONFIG_PATH_SUFFIX ".config/ifetch/ifetchrc"
 
-void print_data(struct data_item *item, struct logo *assigned_logo, char *logo_substitute, unsigned int *row_index, char *sep, char *logo_color, char *fields_color, char *values_color, char *sep_color, int max_padding) {
+void print_data(struct data_item *item, struct logo *assigned_logo, char *logo_substitute, unsigned int *row_index, char *sep, int max_padding) {
     char *buf = strtok(item->data, "\n");
     int i = 0;
     while(buf != NULL) {
         if(i == 0) {
-            printf("%s%s%s%*s%s%s%s%s%s\n", logo_color, (*row_index) < assigned_logo->rows_used ? assigned_logo->row[(*row_index)] : logo_substitute, fields_color, (int) (max_padding - strlen(item->label)), "", item->label, sep_color, sep, values_color, buf);
+            printf("%s%s%s%*s%s%s%s%s%s\n", item->logo_color, (*row_index) < assigned_logo->rows_used ? assigned_logo->row[(*row_index)] : logo_substitute, item->field_color, (int) (max_padding - strlen(item->label)), "", item->label, item->sep_color, sep, item->value_color, buf);
         }
         else {
-            printf("%s%s%s%*s%*s%s%s%s\n", logo_color, (*row_index) < assigned_logo->rows_used ? assigned_logo->row[(*row_index)] : logo_substitute, fields_color, (int) max_padding, "", (int) strlen(sep), "", sep_color, values_color, buf);
+            printf("%s%s%s%*s%*s%s%s%s\n", item->logo_color, (*row_index) < assigned_logo->rows_used ? assigned_logo->row[(*row_index)] : logo_substitute, item->field_color, (int) max_padding, "", (int) strlen(sep), "", item->sep_color, item->value_color, buf);
         }
         i++;
         (*row_index)++;
@@ -86,6 +86,12 @@ void init_data_items(struct data_item items[]) {
         else
             items[i].data = NULL;
         items[i].show = 1;
+        items[i].sep = " >> ";
+
+        items[i].logo_color = BGREEN;
+        items[i].field_color = BWHITE;
+        items[i].sep_color = BGREEN;
+        items[i].value_color = BWHITE;
     }
 
     strcpy(items[IF_INDEX].label, "INTERFACE");
@@ -130,16 +136,13 @@ int main(int argc, char **argv) {
     struct data_item data[FIELDS_NUM];
     init_data_items(data);
 
-    char *logo_color = BGREEN;
-    char *fields_color = BWHITE;
-    char *sep_color = BGREEN;
-    char *values_color = BWHITE;
-
     struct logo *assigned_logo;
     char logo_substitute[64];
     unsigned int max_padding; 
     unsigned int logo_fields_distance = 2;
     unsigned int min_padding = 0;
+
+    char *remaining_logo_color = BGREEN;
 
     char sep[9] = " >> ";
 
@@ -149,8 +152,7 @@ int main(int argc, char **argv) {
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
-        handle_args(args, args_num, 1, data[IF_INDEX].data, &logo_color, &fields_color, \
-                    &values_color, &sep_color, sep, data,         \
+        handle_args(args, args_num, 1, data[IF_INDEX].data, sep, data,  \
                     &logo_fields_distance, &min_padding);
         free_args(args, args_num);
     }
@@ -158,8 +160,7 @@ int main(int argc, char **argv) {
     args = argv;
     args_num = argc;
 
-    handle_args(args, args_num, 0, data[IF_INDEX].data, &logo_color, &fields_color, \
-                &values_color, &sep_color, sep, data,         \
+    handle_args(args, args_num, 0, data[IF_INDEX].data, sep, data,  \
                 &logo_fields_distance, &min_padding);
 
     if(strlen(data[IF_INDEX].data) == 0) {
@@ -193,13 +194,13 @@ int main(int argc, char **argv) {
 
     for(unsigned int i = 0; i < FIELDS_NUM; i++) {
         if(data[i].show && data[i].instances) {
-            print_data(&(data[i]), assigned_logo, logo_substitute, &row_index, sep, logo_color, fields_color, values_color, sep_color, max_padding);
-
+            print_data(&(data[i]), assigned_logo, logo_substitute, &row_index, sep, max_padding);
+            remaining_logo_color = data[i].logo_color;
         }
     }
 
     while(row_index < assigned_logo->rows_used) {
-        printf("%s%s\n", logo_color, assigned_logo->row[row_index]);
+        printf("%s%s\n", remaining_logo_color, assigned_logo->row[row_index]);
         row_index++;
 
     }

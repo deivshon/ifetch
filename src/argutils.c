@@ -115,9 +115,7 @@ static void handle_num_argument(unsigned int *dest,     \
 }
 
 void handle_args(char **argv, int argc, int from_config,    \
-                 char *interface, char **logo_color,        \
-                 char **fields_color, char **values_color,  \
-                 char **sep_color, char *sep,               \
+                 char *interface, char *sep,                \
                  struct data_item items[],                  \
                  unsigned int *logo_field_distance,         \
                  unsigned int *min_padding)
@@ -142,19 +140,27 @@ void handle_args(char **argv, int argc, int from_config,    \
         // Other options
         else if(!strcmp("-fc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
-            handle_color_argument(fields_color, &ai, argv, error_premise);
+            for(int i = 0; i < FIELDS_NUM; i++) {
+                handle_color_argument(&(items[i].field_color), &ai, argv, error_premise);
+            }
         }
         else if(!strcmp("-vc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
-            handle_color_argument(values_color, &ai, argv, error_premise);
+            for(int i = 0; i < FIELDS_NUM; i++) {
+                handle_color_argument(&(items[i].value_color), &ai, argv, error_premise);
+            }
         }
         else if(!strcmp("-sc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
-            handle_color_argument(sep_color, &ai, argv, error_premise);
+            for(int i = 0; i < FIELDS_NUM; i++) {
+                handle_color_argument(&(items[i].sep_color), &ai, argv, error_premise);
+            }
         }
         else if(!strcmp("-lc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
-            handle_color_argument(logo_color, &ai, argv, error_premise);
+            for(int i = 0; i < FIELDS_NUM; i++) {
+                handle_color_argument(&(items[i].logo_color), &ai, argv, error_premise);
+            }
         }
         else if(!strcmp("-ns", argv[ai])) {
             strcpy(sep, "");
