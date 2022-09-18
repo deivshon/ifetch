@@ -22,10 +22,10 @@
 #define WHITE   "\033[0m\033[37m" // Code: 'w'
 
 void handle_args(char **argv, int argc, int from_config,    \
-                 char *interface, char *sep,                \
-                 struct data_item items[],                  \
+                 char *interface, struct data_item items[], \
                  unsigned int *logo_field_distance,         \
                  unsigned int *min_padding );
+
 int assign_color(char **dest, char code);
 
 int args_from_file(char ***argv, int *argc, char *file_path);

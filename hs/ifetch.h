@@ -7,7 +7,7 @@
 #define LOGO_LINE_LENGHT 64
 #define MAX_DATA_LENGTH 64
 #define MAX_LABEL_LENGTH 16
-#define MAX_SEP_LENGTH 8
+#define MAX_SEP_LENGTH 9
 
 #define IF_INDEX    0
 #define MAC_INDEX   1
@@ -30,7 +30,7 @@ struct data_item {
     char label[MAX_LABEL_LENGTH];
     int show;
 
-    char *sep;
+    char sep[MAX_SEP_LENGTH];
     char *logo_color;
     char *field_color;
     char *sep_color;

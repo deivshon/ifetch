@@ -64,6 +64,15 @@ static void handle_label_argument(char *dest, int *ai, char **argv, \
     strcpy(dest, argv[*ai]);
 }
 
+static void handle_sep_argument(char *dest, char *sep, char *error_premise) {
+    if(strlen(sep) >= MAX_SEP_LENGTH) {
+        printf("%s\"%s\" is not a valid separator\nThe separator must be at maximum %d characters long\n", error_premise, sep, MAX_SEP_LENGTH - 1);
+        exit(EXIT_FAILURE);
+    }
+
+    strcpy(dest, sep);
+}
+
 static void handle_data_argument(char **argv, int argc,             \
                                  struct data_item *data, int *ai,   \
                                  char *error_premise)
@@ -115,8 +124,7 @@ static void handle_num_argument(unsigned int *dest,     \
 }
 
 void handle_args(char **argv, int argc, int from_config,    \
-                 char *interface, char *sep,                \
-                 struct data_item items[],                  \
+                 char *interface, struct data_item items[], \
                  unsigned int *logo_field_distance,         \
                  unsigned int *min_padding)
 {
@@ -163,16 +171,16 @@ void handle_args(char **argv, int argc, int from_config,    \
             }
         }
         else if(!strcmp("-ns", argv[ai])) {
-            strcpy(sep, "");
+            for(int i = 0; i < FIELDS_NUM; i++) {
+                handle_sep_argument(items[i].sep, " ", error_premise);
+            }
         }
         else if(!strcmp("-s", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
 
-            if(strlen(argv[ai]) >= 9) {
-                printf("%s\"%s\" is not a valid separator\nThe separator must be at maximum 8 characters long\n", error_premise, argv[ai]);
-                exit(EXIT_FAILURE);
+            for(int i = 0; i < FIELDS_NUM; i++) {
+                handle_sep_argument(items[i].sep, argv[ai], error_premise);
             }
-            strcpy(sep, argv[ai]);
         }
         else if(data_arg_index(&data_index, argv[ai], items)) {
             handle_data_argument(argv, argc, &(items[data_index]), &ai, error_premise);
