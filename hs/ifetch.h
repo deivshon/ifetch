@@ -24,7 +24,7 @@ struct logo {
 };
 
 struct data_item {
-    char data[MAX_DATA_LENGTH];
+    char *data;
     char label[MAX_LABEL_LENGTH];
     int show;
 

@@ -83,6 +83,7 @@ void assign_logo(struct logo **dest, char *interface) {
 
 void init_data_items(struct data_item items[]) {
     for(int i = 0; i < FIELDS_NUM; i++) {
+        items[i].data = malloc(sizeof(char) * MAX_DATA_LENGTH);
         items[i].show = 1;
     }
 
@@ -97,6 +98,10 @@ void init_data_items(struct data_item items[]) {
     strcpy(items[MAC_INDEX].arg_name, "-mac");
     strcpy(items[RX_INDEX].arg_name, "-rx");
     strcpy(items[TX_INDEX].arg_name, "-tx");
+}
+
+void free_data_items(struct data_item items[]) {
+    for(int i = 0; i < FIELDS_NUM; i++) free(items[i].data);
 }
 
 void init_ip_item(struct ip_item *ip) {
@@ -236,6 +241,7 @@ int main(int argc, char **argv) {
 
     }
 
+    free_data_items(data);
     printf("%s\n", WHITE);
     exit(EXIT_SUCCESS);
 }
