@@ -142,10 +142,10 @@ int main(int argc, char **argv) {
     struct data_item data[FIELDS_NUM];
     init_data_items(data);
 
-    char *logo_color = BWHITE;
-    char *fields_color = BCYAN;
+    char *logo_color = BGREEN;
+    char *fields_color = BWHITE;
+    char *sep_color = BGREEN;
     char *values_color = BWHITE;
-    char *sep_color = BWHITE;
 
     struct logo *assigned_logo;
     char logo_substitute[64];
@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
     unsigned int logo_fields_distance = 2;
     unsigned int min_padding = 0;
 
-    char sep[9] = ":";
+    char sep[9] = " >> ";
 
     double rx = -1, tx = -1;
 
