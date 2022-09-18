@@ -30,6 +30,12 @@ struct data_item {
     char label[MAX_LABEL_LENGTH];
     int show;
 
+    char *sep;
+    char *logo_color;
+    char *field_color;
+    char *sep_color;
+    char *value_color;
+
     int instances;
 
     char arg_name[8];
