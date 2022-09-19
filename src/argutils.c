@@ -89,6 +89,26 @@ static void handle_data_argument(char **argv, int argc,             \
         step_arg_next(argv, argc, ai, error_premise);
         handle_label_argument(data->label, ai, argv, error_premise);
     }
+    else if(!strcmp("loc", sub_arg)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_color_argument(&(data->logo_color), ai, argv, error_premise);
+    }
+    else if(!strcmp("fc", sub_arg)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_color_argument(&(data->field_color), ai, argv, error_premise);
+    }
+    else if(!strcmp("s", sub_arg)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_sep_argument(data->sep, argv[*ai], error_premise);
+    }
+    else if(!strcmp("sc", sub_arg)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_color_argument(&(data->sep_color), ai, argv, error_premise);
+    }
+    else if(!strcmp("vc", sub_arg)) {
+        step_arg_next(argv, argc, ai, error_premise);
+        handle_color_argument(&(data->value_color), ai, argv, error_premise);
+    }
     else unrecognized_argument(argv[*ai], error_premise);
 }
 
@@ -164,7 +184,7 @@ void handle_args(char **argv, int argc, int from_config,    \
                 handle_color_argument(&(items[i].sep_color), &ai, argv, error_premise);
             }
         }
-        else if(!strcmp("-lc", argv[ai])) {
+        else if(!strcmp("-loc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             for(int i = 0; i < FIELDS_NUM; i++) {
                 handle_color_argument(&(items[i].logo_color), &ai, argv, error_premise);
