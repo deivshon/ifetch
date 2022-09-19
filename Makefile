@@ -1,10 +1,10 @@
 SRC_DIR = src
 HS_DIR = hs
 
-ifeq ($(dbg), true)
-	CFLAGS = -Wall -Wextra -g
-else
+ifeq ($(dbg), false)
 	CFLAGS = -Wall -Wextra -O2
+else
+	CFLAGS = -Wall -Wextra -g
 endif
 
 .PHONY: clean
