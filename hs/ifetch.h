@@ -3,8 +3,8 @@
 
 #include "netutils.h"
 
-#define LOGO_ROWS_NUM 8
-#define LOGO_LINE_LENGHT 64
+#define LOGO_ROWS_NUM 32
+#define LOGO_LINE_LENGHT 32
 #define MAX_DATA_LENGTH 64
 #define MAX_LABEL_LENGTH 16
 #define MAX_SEP_LENGTH 9
