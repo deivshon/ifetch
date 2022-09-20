@@ -353,6 +353,27 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
     return 1;
 }
 
+int logo_from_file(struct logo *dest, char *path, unsigned max_rows, unsigned max_row_length) {
+    FILE *fs = fopen(path, "r");
+    if(fs == NULL) return 0;
+    char buf[max_row_length];
+
+    unsigned int i = 0;
+    while(i < max_rows) {
+        if(!fgets(buf, max_row_length, fs)) break;
+        
+        buf[strcspn(buf, "\n")] = '\0';
+
+        strcpy(dest->row[i], buf);
+        i++;
+    }
+    fclose(fs);
+
+    dest->rows_used = i;
+
+    return 1;
+}
+
 void free_args(char **argv, int argc) {
     for(int i = 0; i < argc; i++) {
         free(argv[i]);
