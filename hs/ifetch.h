@@ -4,7 +4,7 @@
 #include "netutils.h"
 
 #define LOGO_ROWS_NUM 32
-#define LOGO_LINE_LENGHT 32
+#define LOGO_LINE_LENGTH 32
 #define MAX_DATA_LENGTH 64
 #define MAX_LABEL_LENGTH 16
 #define MAX_SEP_LENGTH 9
@@ -21,7 +21,7 @@
 #define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
 struct logo {
-    char row[LOGO_ROWS_NUM][LOGO_LINE_LENGHT];
+    char row[LOGO_ROWS_NUM][LOGO_LINE_LENGTH];
     unsigned int rows_used;
 };
 
