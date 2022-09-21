@@ -24,7 +24,9 @@
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, struct data_item items[], \
                  unsigned int *logo_field_distance,         \
-                 unsigned int *min_padding );
+                 unsigned int *min_padding,                 \
+                 struct logo *logo, char *home_dir,         \
+                 int *logo_chosen);
 
 int assign_color(char **dest, char code);
 

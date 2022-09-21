@@ -56,7 +56,7 @@ int try_set_logo(struct logo *dest, char *path) {
         return 0;
 }
 
-void set_logo(struct logo *dest, char *logo_name, char *home_dir) {
+int set_logo(struct logo *dest, char *logo_name, char *home_dir) {
     char etc_logo_path[MAX_PATH_LENGTH];
     char config_logo_path[MAX_PATH_LENGTH];
 
@@ -69,11 +69,14 @@ void set_logo(struct logo *dest, char *logo_name, char *home_dir) {
     sprintf(fallback_config_logo_path, "%s/%s/%s/%s", home_dir, CONFIG_FOLDER, LOGO_FOLDER, FALLBACK_LOGO_NAME);
     sprintf(fallback_etc_logo_path, "%s/%s/%s", ETC_FOLDER, LOGO_FOLDER, FALLBACK_LOGO_NAME);
 
-    if(try_set_logo(dest, config_logo_path)) return;
-    else if(try_set_logo(dest, etc_logo_path)) return;
-    else if(try_set_logo(dest, fallback_config_logo_path)) return;
-    else if(try_set_logo(dest, fallback_etc_logo_path)) return;
-    else set_fallback_logo(dest);
+    if(try_set_logo(dest, config_logo_path)) return 1;
+    else if(try_set_logo(dest, etc_logo_path)) return 1;
+    else if(try_set_logo(dest, fallback_config_logo_path)) return 1;
+    else if(try_set_logo(dest, fallback_etc_logo_path)) return 1;
+    else {
+        set_fallback_logo(dest);
+        return 0;
+    }
 }
 
 void get_logo_space(char *dest, struct logo *assigned_logo) {
@@ -161,6 +164,7 @@ int main(int argc, char **argv) {
     unsigned int max_padding; 
     unsigned int logo_fields_distance = 2;
     unsigned int min_padding = 0;
+    int logo_chosen = 0;
 
     char *remaining_logo_color = BGREEN;
 
@@ -170,16 +174,18 @@ int main(int argc, char **argv) {
     int args_num;
 
     if(args_from_file(&args, &args_num, config_path)) {
-        handle_args(args, args_num, 1, data[IF_INDEX].data, data,  \
-                    &logo_fields_distance, &min_padding);
+        handle_args(args, args_num, 1, data[IF_INDEX].data, data,   \
+                    &logo_fields_distance, &min_padding,            \
+                    &assigned_logo, home_dir, &logo_chosen);
         free_args(args, args_num);
     }
 
     args = argv;
     args_num = argc;
 
-    handle_args(args, args_num, 0, data[IF_INDEX].data, data,  \
-                &logo_fields_distance, &min_padding);
+    handle_args(args, args_num, 0, data[IF_INDEX].data, data,   \
+                &logo_fields_distance, &min_padding,            \
+                &assigned_logo, home_dir, &logo_chosen);
 
     if(strlen(data[IF_INDEX].data) == 0) {
         int interface_available = get_max_interface(data[IF_INDEX].data, &rx, &tx);
@@ -202,7 +208,9 @@ int main(int argc, char **argv) {
     if(data[MAC_INDEX].show) data[MAC_INDEX].instances = get_mac(data[MAC_INDEX].data, data[IF_INDEX].data);
     if(data[IP4_INDEX].show) data[IP4_INDEX].instances = get_ip(&(data[IP4_INDEX].data), data[IF_INDEX].data, IPv4);
     if(data[IP6_INDEX].show) data[IP6_INDEX].instances = get_ip(&(data[IP6_INDEX].data), data[IF_INDEX].data, IPv6);
-    assign_logo(&assigned_logo, data[IF_INDEX].data, home_dir);
+    if(!logo_chosen) {
+        assign_logo(&assigned_logo, data[IF_INDEX].data, home_dir);
+    }
     get_logo_space(logo_substitute, &assigned_logo);
 
     max_padding = get_max_padding(data) + logo_fields_distance;

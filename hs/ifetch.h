@@ -41,4 +41,6 @@ struct data_item {
     char arg_name[8];
 };
 
+int set_logo(struct logo *dest, char *logo_name, char *home_dir);
+
 #endif

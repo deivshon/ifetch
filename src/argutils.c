@@ -143,10 +143,21 @@ static void handle_num_argument(unsigned int *dest,     \
     (*dest) = atoi(argv[ai]);
 }
 
+static void handle_logo_argument(struct logo *dest, char **argv,    \
+                                 int *ai, char *home_dir,           \
+                                 char *error_premise) {
+    if(!set_logo(dest, argv[*ai], home_dir)) {
+        printf("%sNo logo file named \"%s\" was found\n", error_premise, argv[*ai]);
+        exit(EXIT_FAILURE);
+    }
+}
+
 void handle_args(char **argv, int argc, int from_config,    \
                  char *interface, struct data_item items[], \
                  unsigned int *logo_field_distance,         \
-                 unsigned int *min_padding)
+                 unsigned int *min_padding,                 \
+                 struct logo *logo, char *home_dir,         \
+                 int *logo_chosen)
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
     int data_index = -1;
@@ -222,6 +233,11 @@ void handle_args(char **argv, int argc, int from_config,    \
                 printf("%s\"%s\" is an invalid argument for the %s option\nMinimum padding can have a maximum value of 64\n", error_premise, argv[ai], argv[ai - 1]);\
                 exit(EXIT_FAILURE);
             }
+        }
+        else if(!strcmp("-lo", argv[ai])) {
+            step_arg_next(argv, argc, &ai, error_premise);
+            handle_logo_argument(logo, argv, &ai, home_dir, error_premise);
+            (*logo_chosen) = 1;
         }
         else {
             unrecognized_argument(argv[ai], error_premise);
