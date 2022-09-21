@@ -15,8 +15,6 @@
 #define WIFI_LOGO_NAME      "wifi"
 #define FALLBACK_LOGO_NAME  "fallback"
 
-enum if_types {ETH, WIFI, FALLBACK};
-
 void print_data(struct data_item *item, struct logo *assigned_logo, char *logo_substitute, unsigned int *row_index, int max_padding) {
     char *buf = strtok(item->data, "\n");
     int i = 0;
