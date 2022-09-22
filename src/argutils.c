@@ -179,36 +179,41 @@ void handle_args(char **argv, int argc, int from_config,    \
                 exit(EXIT_FAILURE);
             }
         }
-        // Other options
+        // All field colors
         else if(!strcmp("-fc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             for(int i = 0; i < FIELDS_NUM; i++) {
                 handle_color_argument(&(items[i].field_color), &ai, argv, error_premise);
             }
         }
+        // All value colors
         else if(!strcmp("-vc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             for(int i = 0; i < FIELDS_NUM; i++) {
                 handle_color_argument(&(items[i].value_color), &ai, argv, error_premise);
             }
         }
+        // All separator colors
         else if(!strcmp("-sc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             for(int i = 0; i < FIELDS_NUM; i++) {
                 handle_color_argument(&(items[i].sep_color), &ai, argv, error_premise);
             }
         }
+        // All logo lines colors
         else if(!strcmp("-loc", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             for(int i = 0; i < FIELDS_NUM; i++) {
                 handle_color_argument(&(items[i].logo_color), &ai, argv, error_premise);
             }
         }
+        // Set no separator for all lines
         else if(!strcmp("-ns", argv[ai])) {
             for(int i = 0; i < FIELDS_NUM; i++) {
                 handle_sep_argument(items[i].sep, " ", error_premise);
             }
         }
+        // Set separator for all lines
         else if(!strcmp("-s", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
 
@@ -216,9 +221,11 @@ void handle_args(char **argv, int argc, int from_config,    \
                 handle_sep_argument(items[i].sep, argv[ai], error_premise);
             }
         }
+        // Handle per data item option
         else if(data_arg_index(&data_index, argv[ai], items)) {
             handle_data_argument(argv, argc, &(items[data_index]), &ai, error_premise);
         }
+        // Set minimum logo distance
         else if(!strcmp("-mld", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             handle_num_argument(logo_field_distance, argv, ai, error_premise);
@@ -228,6 +235,7 @@ void handle_args(char **argv, int argc, int from_config,    \
                 exit(EXIT_FAILURE);
             }
         }
+        // Set minimum "padding"
         else if(!strcmp("-mp", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             handle_num_argument(min_padding, argv, ai, error_premise);
@@ -237,6 +245,7 @@ void handle_args(char **argv, int argc, int from_config,    \
                 exit(EXIT_FAILURE);
             }
         }
+        // Set logo
         else if(!strcmp("-lo", argv[ai])) {
             step_arg_next(argv, argc, &ai, error_premise);
             handle_logo_argument(logo, argv, &ai, home_dir, error_premise);
