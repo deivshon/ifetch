@@ -317,7 +317,7 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
 
     char buf[MAX_ARG_SIZE * 2 + 1];
     char *buf_split;
-    int start;
+    int arg_index;
     char *arg;
 
     int len_add;
@@ -327,8 +327,8 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
 
         buf_split = strtok(buf, "=");
 
-        for(start = 0; isspace(buf_split[start]); start++);
-        arg = buf_split + sizeof(char) * start;
+        for(arg_index = 0; isspace(buf_split[arg_index]); arg_index++);
+        arg = buf_split + sizeof(char) * arg_index;
         arg[strcspn(arg, spacing_chars)] = '\0';
 
         if(arg[0] == '#' || arg[0] == '\0') continue;
@@ -346,16 +346,19 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
         buf_split = strtok(NULL, "\n");
         if(buf_split == NULL) continue;
 
-        for(start = 0; isspace(buf_split[start]); start++);
-        if(buf_split[start] == '"') {
-            for(; buf_split[start] == '"'; start++);
-            arg = buf_split + sizeof(char) * start;
+        // Remove starting spaces
+        for(arg_index = 0; isspace(buf_split[arg_index]); arg_index++);
 
-            for(start++; buf_split[start] != '"'; start++);
-            buf_split[start] = '\0';
+        // Only save quoted text in case the value is quoted
+        if(buf_split[arg_index] == '"') {
+            for(; buf_split[arg_index] == '"'; arg_index++);
+            arg = buf_split + sizeof(char) * arg_index;
+
+            for(arg_index++; buf_split[arg_index] != '"'; arg_index++);
+            buf_split[arg_index] = '\0';
         }
         else {
-            arg = buf_split + sizeof(char) * start;
+            arg = buf_split + sizeof(char) * arg_index;
 
             // If the argument was not quoted, trailing spaces should not be considered
             arg[strcspn(arg, spacing_chars)] = '\0';
