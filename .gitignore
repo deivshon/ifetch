@@ -53,5 +53,4 @@ dkms.conf
 
 .vscode
 ifetch
-ifetchrc
 vgcore*
