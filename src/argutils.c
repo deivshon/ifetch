@@ -101,6 +101,9 @@ static void handle_data_argument(char **argv, int argc,             \
         step_arg_next(argv, argc, ai, error_premise);
         handle_sep_argument(data->sep, argv[*ai], error_premise);
     }
+    else if(!strcmp("ns", sub_arg)) {
+        handle_sep_argument(data->sep, " ", error_premise);
+    }
     else if(!strcmp("sc", sub_arg)) {
         step_arg_next(argv, argc, ai, error_premise);
         handle_color_argument(&(data->sep_color), ai, argv, error_premise);
