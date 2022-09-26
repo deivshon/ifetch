@@ -1,0 +1,40 @@
+ifloc=R
+ifl="IFA"
+iffc=G
+ifs=" :: "
+ifsc=Y
+ifvc=B
+
+macloc=M
+macfc=C
+macs=" <> "
+macsc=W
+macvc=r
+
+ip4loc=g
+ip4l=IP4
+ip4fc=y
+ip4s=" -> "
+ip4sc=b
+ip4vc=m
+
+ip6loc=c
+ip6fc=w
+ip6l="IP 6"
+ip6s=" -- "
+ip6sc=R
+ip6vc=G
+
+rxloc=Y
+rxfc=B
+rxs=" /\ "
+rxsc=M
+rxvc=C
+
+txloc=W
+txfc=r
+txs=" {} "
+txsc=g
+txvc=y
+
+mp=11
