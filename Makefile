@@ -36,8 +36,8 @@ install: ifetch
 	mkdir -p $(INSTALL_DIR)
 	sudo cp ifetch $(INSTALL_DIR)/ifetch
 	chmod 711 $(INSTALL_DIR)/ifetch
-	sudo mkdir -p $(ETC_CONFIG_DIR)
-	sudo cp -r defaults/* $(ETC_CONFIG_DIR)
+	mkdir -p $(ETC_CONFIG_DIR)
+	cp -r defaults/* $(ETC_CONFIG_DIR)
 
 uninstall:
 	rm -f $(INSTALL_DIR)/ifetch
