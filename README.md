@@ -3,8 +3,10 @@
 
 <h2 align="center">ifetch</h2>
 
-<img align="right" src="assets/images/default.png" width="450px" height="130px" border="1px solid #555">
-<img align="right" src="assets/images/arlecchino.png" width="450px" height="130px" border="1px solid #555">
+<p align="center"><img align="center" src="assets/images/default.png" width="450px" height="130px"></p>
+<br>
+
+<img align="right" src="assets/images/arlecchino.png" width="450px" height="130px">
 
 ifetch is a simple tool for Linux systems to display network interface information. You can currently install it from source in a few easy steps, and soon using a number of package managers.
 
