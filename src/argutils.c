@@ -10,8 +10,7 @@
 #define spacing_chars " \t\n\v\f\r"
 #define is_digit(c) (c >= 48 && c <= 57)
 
-static void step_arg_next(char **argv, int argc, int *ai,   \
-                          char *error_premise) {
+static void step_arg_next(char **argv, int argc, int *ai, char *error_premise) {
     if((*ai) + 1 >= argc) {
         printf("%sYou must provide an argument after the \"%s\" option\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
@@ -25,8 +24,7 @@ static void unrecognized_argument(char *arg, char *error_premise) {
     exit(EXIT_FAILURE);
 }
 
-static void handle_color_argument(char **dest, int *ai, char **argv,    \
-                                  char *error_premise)
+static void handle_color_argument(char **dest, int *ai, char **argv, char *error_premise)
 {
     if(strlen(argv[*ai]) > 1) {
         printf("%s\"%s\" is not a valid color code\n", error_premise, argv[*ai]);
@@ -40,8 +38,7 @@ static void handle_color_argument(char **dest, int *ai, char **argv,    \
     }
 }
 
-static void handle_show_argument(int *dest, int *ai, char **argv,   \
-                                 char *error_premise)
+static void handle_show_argument(int *dest, int *ai, char **argv, char *error_premise)
 {
     if(!strcmp("s", argv[*ai]) || !strcmp("show", argv[*ai]))
         (*dest) = 1;
@@ -53,8 +50,7 @@ static void handle_show_argument(int *dest, int *ai, char **argv,   \
     }
 }
 
-static void handle_label_argument(char *dest, int *ai, char **argv, \
-                                 char *error_premise)
+static void handle_label_argument(char *dest, int *ai, char **argv, char *error_premise)
 {
     if(strlen(argv[*ai]) >= MAX_LABEL_LENGTH) {
         printf("%s\"%s\" is not a valid label. Labels have a maximum length of %d\n", error_premise, argv[*ai], MAX_LABEL_LENGTH);
@@ -73,9 +69,7 @@ static void handle_sep_argument(char *dest, char *sep, char *error_premise) {
     strcpy(dest, sep);
 }
 
-static void handle_data_argument(char **argv, int argc,             \
-                                 struct data_item *data, int *ai,   \
-                                 char *error_premise)
+static void handle_data_argument(char **argv, int argc, struct data_item *data, int *ai, char *error_premise)
 {
     // Show argument case
     if(strlen(argv[*ai]) == strlen(data->arg_name)) {
@@ -134,9 +128,7 @@ static int is_number(char *str) {
     return 1;
 }
 
-static void handle_num_argument(unsigned int *dest,     \
-                                char **argv, int ai,    \
-                                char *error_premise)
+static void handle_num_argument(unsigned int *dest, char **argv, int ai, char *error_premise)
 {
     if(!is_number(argv[ai])) {
         printf("%s\"%s\" is an invalid argument for the %s option\n", error_premise, argv[ai], argv[ai - 1]);
@@ -146,21 +138,14 @@ static void handle_num_argument(unsigned int *dest,     \
     (*dest) = atoi(argv[ai]);
 }
 
-static void handle_logo_argument(struct logo *dest, char **argv,    \
-                                 int *ai, char *home_dir,           \
-                                 char *error_premise) {
+static void handle_logo_argument(struct logo *dest, char **argv, int *ai, char *home_dir, char *error_premise) {
     if(!set_logo(dest, argv[*ai], home_dir)) {
         printf("%sNo logo file named \"%s\" was found\n", error_premise, argv[*ai]);
         exit(EXIT_FAILURE);
     }
 }
 
-void handle_args(char **argv, int argc, int from_config,    \
-                 char *interface, struct data_item items[], \
-                 unsigned int *logo_field_distance,         \
-                 unsigned int *min_padding,                 \
-                 struct logo *logo, char *home_dir,         \
-                 int *logo_chosen)
+void handle_args(char **argv, int argc, int from_config, char *interface, struct data_item items[], unsigned int *logo_field_distance, unsigned int *min_padding, struct logo *logo, char *home_dir, int *logo_chosen)
 {
     char *error_premise = from_config ? "Error in config file\n" : "";
     int data_index = -1;
