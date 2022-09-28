@@ -19,27 +19,27 @@ ifetch is a simple tool for Linux systems to display network interface informati
 ### <b>Options</b>
 Options are passed as arguments through the command line or extracted from a configuration file, necessarily named <code>ifetchrc</code>. Configuration files can be placed in <code>/etc/ifetch/</code> and <code>~/.config/ifetch/</code>, the latter takes precedence over the former.
 
-While command line arguments have a standard <code>-{option} {value syntax}</code>, in configuration files the <code>{option}={value}</code> syntax is used.
+While command line arguments have a standard <code>-{option} {value}</code> syntax, in configuration files the <code>{option}={value}</code> syntax is used.
 
 If a configuration file is used **and** command line arguments are passed to ifetch, the command line arguments specified will take precedence over the corresponding ones in the configuration file. This means that a configuration file can be used and individual options can be specified through the command line to only change what is needed from the configuration file options.
 
 Below is a cheatsheet displaying all currently available options, plus the data items and allowed colors table
 
-| Option       | Allowed values              | Description                                                       |
-|--------------|-----------------------------|-------------------------------------------------------------------|
-| /            | Interface names             | Selects which interface to fetch data from                        |
-| -if          | Interface names             | Selects which interface to fetch data from                        |
-| -lo          | Logo file name<sup>1</sup>  | Selects the logo                                                  |
-| -loc         | Color code                  | Selects the logo color                                            |
-| -fc          | Color code                  | Selects the fields color                                          |
-| -sc          | Color code                  | Selects the separator color                                       |
-| -vc          | Color code                  | Selectes the values color                                         |
-| -s           | String                      | Selects the separator                                             |
-| -ns          | /                           | Selects a single space character as the separator                 |
-| -mld         | Integer                     | Selects the minimum logo-field distance allowed                   |
-| -mp          | Integer                     | Selects the minimum padding<sup>2</sup> allowed                   |
-| -{...}l      | String                      | Selects the label for the specified data item                     |
-| -{data item} | {show \| s \| hide \| h}    | Selects whether the specified data item will be showed or not     |
+| Option        | Allowed values              | Description                                                       |
+|---------------|-----------------------------|-------------------------------------------------------------------|
+| /             | Interface names             | Selects which interface to fetch data from                        |
+| -if           | Interface names             | Selects which interface to fetch data from                        |
+| -lo           | Logo file name<sup>1</sup>  | Selects the logo                                                  |
+| -loc          | Color code                  | Selects the logo color                                            |
+| -fc           | Color code                  | Selects the fields color                                          |
+| -sc           | Color code                  | Selects the separator color                                       |
+| -vc           | Color code                  | Selectes the values color                                         |
+| -s            | String                      | Selects the separator                                             |
+| -ns           | /                           | Selects a single space character as the separator                 |
+| -mld          | Integer                     | Selects the minimum logo-field distance allowed                   |
+| -mp           | Integer                     | Selects the minimum padding<sup>2</sup> allowed                   |
+| -{data item}l | String                      | Selects the label for the specified data item                     |
+| -{data item}  | {show \| s \| hide \| h}    | Selects whether the specified data item will be showed or not     |
 
 <sup>1</sup> Allowed logo file names are names of text files in either the <code>/etc/ifetch/logos/</code> or <code>~/.config/ifetch/logos/</code> directory. As with configuration files, the latter takes precedence over the former
 
@@ -56,7 +56,7 @@ Below is a cheatsheet displaying all currently available options, plus the data 
 
 <img align="right" src="assets/images/arlecchino.png" width="450px" height="130px">
 
-Options and data items can be mixed (except for the <code>-mld</code> and <code>-mp</code> options) to only have colors or separators on specific data rows. For instance, <code>-ifvc G</code> would make ifetch print the value (<code>vc</code>) of the <code>if</code> data item (interface name) in bold green. For more examples, take a look at <code>assets/configs/arlecchino_cfg</code>, the configuration file used to produce the output in the image above
+Options and data items can be mixed (except for the <code>-mld</code> and <code>-mp</code> options) to only have colors or separators on specific data rows. For instance, <code>-ifvc G</code> would make ifetch print the value (<code>vc</code>) of the <code>if</code> data item (interface name) in bold green, while <code>-vc G</code> would make ifetch print all values in bold green. For more examples, take a look at <code>assets/configs/arlecchino_cfg</code>, the configuration file used to produce the output in the image above
 
 | Color code | Color   |
 |------------|---------|
