@@ -1,0 +1,14 @@
+# Logo color
+loc=G
+
+# Fields color
+fc=W
+
+# Separator
+sep=" >> "
+
+# Separator color
+sc=G
+
+# Values color
+vc=W
