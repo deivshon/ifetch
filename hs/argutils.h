@@ -29,6 +29,6 @@ int args_from_file(char ***argv, int *argc, char *file_path);
 
 void free_args(char **argv, int argc);
 
-int logo_from_file(struct logo *dest, char *path, unsigned max_rows, unsigned max_row_length);
+int logo_from_file(struct logo *dest, char *path);
 
 #endif

@@ -369,14 +369,14 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
     return 1;
 }
 
-int logo_from_file(struct logo *dest, char *path, unsigned max_rows, unsigned max_row_length) {
+int logo_from_file(struct logo *dest, char *path) {
     FILE *fs = fopen(path, "r");
     if(fs == NULL) return 0;
-    char buf[max_row_length];
+    char buf[LOGO_LINE_LENGTH];
 
     unsigned int i = 0;
-    while(i < max_rows) {
-        if(!fgets(buf, max_row_length, fs)) break;
+    while(i < LOGO_ROWS_NUM) {
+        if(!fgets(buf, LOGO_LINE_LENGTH, fs)) break;
         
         buf[strcspn(buf, "\n")] = '\0';
 

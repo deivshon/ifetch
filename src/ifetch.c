@@ -49,13 +49,6 @@ void set_fallback_logo(struct logo *dest) {
     dest->rows_used = default_logo.rows_used;
 }
 
-int try_set_logo(struct logo *dest, char *path) {
-    if(logo_from_file(dest, path, LOGO_ROWS_NUM, LOGO_LINE_LENGTH))
-        return 1;
-    else
-        return 0;
-}
-
 int set_logo(struct logo *dest, char *logo_name, char *home_dir) {
     char etc_logo_path[MAX_PATH_LENGTH];
     char config_logo_path[MAX_PATH_LENGTH];
@@ -69,10 +62,10 @@ int set_logo(struct logo *dest, char *logo_name, char *home_dir) {
     sprintf(fallback_config_logo_path, "%s/%s/%s/%s", home_dir, CONFIG_FOLDER, LOGO_FOLDER, FALLBACK_LOGO_NAME);
     sprintf(fallback_etc_logo_path, "%s/%s/%s", ETC_FOLDER, LOGO_FOLDER, FALLBACK_LOGO_NAME);
 
-    if(try_set_logo(dest, config_logo_path)) return 1;
-    else if(try_set_logo(dest, etc_logo_path)) return 1;
-    else if(try_set_logo(dest, fallback_config_logo_path)) return 1;
-    else if(try_set_logo(dest, fallback_etc_logo_path)) return 1;
+    if(logo_from_file(dest, config_logo_path)) return 1;
+    else if(logo_from_file(dest, etc_logo_path)) return 1;
+    else if(logo_from_file(dest, fallback_config_logo_path)) return 1;
+    else if(logo_from_file(dest, fallback_etc_logo_path)) return 1;
     else {
         set_fallback_logo(dest);
         return 0;
