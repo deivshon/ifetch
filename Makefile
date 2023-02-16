@@ -1,21 +1,13 @@
 SRC_DIR = src
 HS_DIR = hs
 
-PACKAGE_INSTALL_DIR = /usr/bin
-LOCAL_COMPILE_INSTALL_DIR = /usr/local/bin
-
+DESTDIR = /usr/bin
 ETC_CONFIG_DIR = /etc/ifetch
 
-ifeq ($(dbg), false)
-	CFLAGS = -Wall -Wextra -O2
-else
+ifeq ($(DBG), true)
 	CFLAGS = -Wall -Wextra -g
-endif
-
-ifeq ($(pkg), true)
-	INSTALL_DIR = $(PACKAGE_INSTALL_DIR)
 else
-	INSTALL_DIR = $(LOCAL_COMPILE_INSTALL_DIR)
+	CFLAGS = -Wall -Wextra -O2
 endif
 
 .PHONY: clean
@@ -33,17 +25,17 @@ argutils.o: $(SRC_DIR)/argutils.c $(HS_DIR)/argutils.h $(HS_DIR)/ifetch.h
 	gcc $(CFLAGS) -c -o $@ $<
 
 install: ifetch
-	mkdir -p $(INSTALL_DIR)
-	sudo cp ifetch $(INSTALL_DIR)/ifetch
-	chmod 711 $(INSTALL_DIR)/ifetch
+	mkdir -p $(DESTDIR)
+	cp ifetch $(DESTDIR)/ifetch
+	chmod 755 $(DESTDIR)/ifetch
 	mkdir -p $(ETC_CONFIG_DIR)
-	cp -r defaults/* $(ETC_CONFIG_DIR)
+	cp -rn defaults/* $(ETC_CONFIG_DIR)
 
 uninstall:
-	rm -f $(INSTALL_DIR)/ifetch
+	rm -f $(DESTDIR)/ifetch
 
 purge:
-	sudo rm -rf $(ETC_CONFIG_DIR)
+	rm -rf $(ETC_CONFIG_DIR)
 
 clean:
 	rm -f *.o ifetch
