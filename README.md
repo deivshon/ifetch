@@ -6,7 +6,7 @@
 <p align="center"><img align="center" src="assets/images/default.png" width="450px" height="130px"></p>
 <br>
 
-ifetch is a simple tool for Linux systems to display network interface information. You can currently install it from source in a few easy steps, and soon using a number of package managers.
+ifetch is a simple tool for Linux systems to display network interface information.
 
 ### <b>Installation and removal</b>
 
