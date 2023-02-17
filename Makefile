@@ -39,6 +39,7 @@ uninstall:
 
 purge:
 	rm -rf $(ETC_CONFIG_DIR)
+	rm -rf /usr/share/doc/ifetch
 
 clean:
 	rm -f *.o ifetch
