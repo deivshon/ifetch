@@ -31,7 +31,7 @@ install: ifetch
 	chmod 755 $(DEST_DIR)$(INSTALL_DIR)/ifetch
 	mkdir -p $(DEST_DIR)$(ETC_CONFIG_DIR)
 	cp -rn defaults/* $(DEST_DIR)$(ETC_CONFIG_DIR)
-	mkdir -p /usr/share/doc/ifetch/
+	mkdir -p $(DEST_DIR)/usr/share/doc/ifetch/
 	cp README.md $(DEST_DIR)/usr/share/doc/ifetch/
 
 uninstall:
