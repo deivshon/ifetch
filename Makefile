@@ -1,7 +1,8 @@
 SRC_DIR = src
 HS_DIR = hs
 
-DESTDIR = /usr/bin
+DEST_DIR ?=
+INSTALL_DIR = /usr/bin
 ETC_CONFIG_DIR = /etc/ifetch
 
 ifeq ($(DBG), true)
@@ -25,14 +26,14 @@ argutils.o: $(SRC_DIR)/argutils.c $(HS_DIR)/argutils.h $(HS_DIR)/ifetch.h
 	gcc $(CFLAGS) -c -o $@ $<
 
 install: ifetch
-	mkdir -p $(DESTDIR)
-	cp ifetch $(DESTDIR)/ifetch
-	chmod 755 $(DESTDIR)/ifetch
-	mkdir -p $(ETC_CONFIG_DIR)
-	cp -rn defaults/* $(ETC_CONFIG_DIR)
+	mkdir -p $(DEST_DIR)$(INSTALL_DIR)
+	cp ifetch $(DEST_DIR)$(INSTALL_DIR)/ifetch
+	chmod 755 $(DEST_DIR)$(INSTALL_DIR)/ifetch
+	mkdir -p $(DEST_DIR)$(ETC_CONFIG_DIR)
+	cp -rn defaults/* $(DEST_DIR)$(ETC_CONFIG_DIR)
 
 uninstall:
-	rm -f $(DESTDIR)/ifetch
+	rm -f $(INSTALL_DIR)/ifetch
 
 purge:
 	rm -rf $(ETC_CONFIG_DIR)
