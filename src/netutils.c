@@ -11,7 +11,7 @@ static int line_from_file(char *dest, char *path) {
     if(fs == NULL) return 0;
 
     char line[1024];
-    fgets(line, 1024, fs);
+    if(!fgets(line, 1024, fs)) return 0;
 
     fclose(fs);
 
@@ -28,7 +28,7 @@ static double double_from_file(double *dest, char *path) {
     char number_str[32];
     number_str[0] = '\0';
 
-    fgets(number_str, 32, fs);
+    if(!fgets(number_str, 32, fs)) return 0;
     if(!strcmp(number_str, "\n") || !strcmp(number_str, "")) { 
         // If the file is empty, the function failed
         fclose(fs);
@@ -143,7 +143,7 @@ int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes) 
         if(opstate_file == NULL) { // If the operstate file is missing, continue
             continue;
         }
-        fgets(cur_opstate, 8, opstate_file);
+        if(!fgets(cur_opstate, 8, opstate_file)) continue;
         fclose(opstate_file);
 
         if(strcmp(cur_opstate, "up\n")) // If interface is not up, continue
