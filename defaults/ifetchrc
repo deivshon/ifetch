@@ -5,7 +5,7 @@ loc=G
 fc=W
 
 # Separator
-sep=" >> "
+s=" >> "
 
 # Separator color
 sc=G

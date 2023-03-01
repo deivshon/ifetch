@@ -146,8 +146,10 @@ unsigned int get_max_padding(struct data_item items[]) {
 
 int main(int argc, char **argv) {
     char *home_dir = getpwuid(getuid())->pw_dir;
-    char config_path[MAX_PATH_LENGTH];
-    sprintf(config_path, "%s/%s", home_dir, CONFIG_PATH_SUFFIX);
+
+	char *etc_config_path = "/etc/ifetch/ifetchrc";
+    char dot_config_path[MAX_PATH_LENGTH];
+    sprintf(dot_config_path, "%s/%s", home_dir, CONFIG_PATH_SUFFIX);
 
     struct data_item data[FIELDS_NUM];
     init_data_items(data);
@@ -166,7 +168,8 @@ int main(int argc, char **argv) {
     char **args;
     int args_num;
 
-    if(args_from_file(&args, &args_num, config_path)) {
+    if(args_from_file(&args, &args_num, dot_config_path) ||
+	   args_from_file(&args, &args_num, etc_config_path)) {
         handle_args(args, args_num, 1, data[IF_INDEX].data, data,   \
                     &logo_fields_distance, &min_padding,            \
                     &assigned_logo, home_dir, &logo_chosen);
