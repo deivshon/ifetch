@@ -8,13 +8,15 @@ ETC_CONFIG_DIR = /etc/ifetch
 ifeq ($(DBG), true)
 	CFLAGS = -Wall -Wextra -g
 else
-	CFLAGS = -Wall -Wextra -O2
+	CFLAGS ?= -Wall -Wextra -O2
 endif
+
+LDFLAGS ?= -Wl,-z,relro,-z,now
 
 .PHONY: clean
 
 ifetch: ifetch.o netutils.o argutils.o
-	gcc $(CFLAGS) $^ -o ifetch
+	gcc $(CFLAGS) $(LDFLAGS) $^ -o ifetch
 
 ifetch.o: $(SRC_DIR)/ifetch.c $(HS_DIR)/ifetch.h $(HS_DIR)/netutils.h
 	gcc $(CFLAGS) -c -o $@ $<
