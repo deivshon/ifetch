@@ -244,6 +244,11 @@ void handle_args(char **argv, int argc, int from_config, char *interface, struct
 }
 
 int assign_color(char **dest, char code) {
+	if(!on_tty) {
+		*dest = "";
+		return 1;
+	}
+
     int assigned = 1;
     switch(code) {
         case 'R':

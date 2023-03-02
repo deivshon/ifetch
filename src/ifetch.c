@@ -15,6 +15,8 @@
 #define WIFI_LOGO_NAME      "wifi"
 #define FALLBACK_LOGO_NAME  "fallback"
 
+int on_tty = 0;
+
 void print_data(struct data_item *item, struct logo *assigned_logo, char *logo_substitute, unsigned int *row_index, int max_padding) {
     char *buf = strtok(item->data, "\n");
     int i = 0;
@@ -102,10 +104,10 @@ void init_data_items(struct data_item items[]) {
         items[i].show = 1;
         strcpy(items[i].sep, " >> ");
 
-        items[i].logo_color = BGREEN;
-        items[i].field_color = BWHITE;
-        items[i].sep_color = BGREEN;
-        items[i].value_color = BWHITE;
+        items[i].logo_color = on_tty ? BGREEN : "";
+        items[i].field_color = on_tty ? BWHITE : "";
+        items[i].sep_color = on_tty ? BGREEN : "";
+        items[i].value_color = on_tty ? BWHITE : "";
     }
 
     strcpy(items[IF_INDEX].label, "INTERFACE");
@@ -145,6 +147,8 @@ unsigned int get_max_padding(struct data_item items[]) {
 }
 
 int main(int argc, char **argv) {
+	on_tty = isatty(STDOUT_FILENO);
+
     char *home_dir = getpwuid(getuid())->pw_dir;
 
 	char *etc_config_path = "/etc/ifetch/ifetchrc";
@@ -161,7 +165,7 @@ int main(int argc, char **argv) {
     unsigned int min_padding = 0;
     int logo_chosen = 0;
 
-    char *remaining_logo_color = BGREEN;
+    char *remaining_logo_color = on_tty ? BGREEN : "";
 
     double rx = -1, tx = -1;
 

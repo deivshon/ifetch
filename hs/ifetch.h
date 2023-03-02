@@ -43,4 +43,6 @@ struct data_item {
 
 int set_logo(struct logo *dest, char *logo_name, char *home_dir);
 
+extern int on_tty;
+
 #endif
