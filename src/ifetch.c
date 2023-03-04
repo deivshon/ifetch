@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
     if(!logo_chosen) {
         assign_logo(&assigned_logo, interface, home_dir);
     }
-    get_logo_space(logo_substitute, sizeof(logo_substitute), &assigned_logo);
+    get_logo_space(logo_substitute, sizeof(logo_substitute) / sizeof(wchar_t), &assigned_logo);
 
     max_padding = get_max_padding(data) + logo_fields_distance;
     if(max_padding < min_padding) max_padding = min_padding;
