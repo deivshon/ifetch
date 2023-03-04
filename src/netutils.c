@@ -1,23 +1,25 @@
 #include "../hs/netutils.h"
+#include "../hs/ifetch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
 #include <netdb.h>
 #include <ifaddrs.h>
+#include <wchar.h>
 
-static int line_from_file(char *dest, char *path) {
+static int line_from_file(wchar_t *dest, char *path) {
     FILE *fs = fopen(path, "r");
     if(fs == NULL) return 0;
 
-    char line[1024];
-    if(!fgets(line, 1024, fs)) return 0;
+    wchar_t line[1024];
+    if(!fgetws(line, 1024, fs)) return 0;
 
     fclose(fs);
 
-    line[strcspn(line, "\n")] = '\0';
+    line[wcscspn(line, L"\n")] = '\0';
 
-    strcpy(dest, line);
+    wcscpy(dest, line);
     return 1;
 }
 
@@ -51,8 +53,8 @@ double get_bytes(double *dest, char *interface, enum transmission_type t) {
     return 1;
 }
 
-int to_formatted_bytes(char *dest, double bytes) {
-    char *suffixes[7] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
+int to_formatted_bytes(wchar_t *dest, int dest_size, double bytes) {
+    wchar_t *suffixes[7] = {L"B", L"KiB", L"MiB", L"GiB", L"TiB", L"PiB", L"EiB"};
 
     double approx_bytes = bytes;
     unsigned int divisions = 0;
@@ -63,23 +65,23 @@ int to_formatted_bytes(char *dest, double bytes) {
     }
 
     if(divisions == 0)
-        sprintf(dest, "%.0lf %s", approx_bytes, suffixes[divisions]);
+        swprintf(dest, dest_size, L"%.0lf %S", approx_bytes, suffixes[divisions]);
     else
-        sprintf(dest, "%.2lf %s", approx_bytes, suffixes[divisions]);
+        swprintf(dest, dest_size, L"%.2lf %S", approx_bytes, suffixes[divisions]);
 
     return 1;
 }
 
-int get_mac(char *dest, char *interface) {
+int get_mac(wchar_t *dest, char *interface) {
     char mac_file_path[MAX_PATH_LENGTH];
     sprintf(mac_file_path, "%s/%s/%s", INTERFACES_PATH, interface, "address");
 
     if(!line_from_file(dest, mac_file_path)) return 0;
 
-    return strcmp("", dest);
+    return wcscmp(L"", dest);
 }
 
-int get_ip(char **dest, char *interface_name, enum ipv ip_version) {
+int get_ip(wchar_t **dest, char *interface_name, enum ipv ip_version) {
     struct ifaddrs *interface, *interface_head;
     if(getifaddrs(&interface) == -1) return 0;
     interface_head = interface;
@@ -100,16 +102,19 @@ int get_ip(char **dest, char *interface_name, enum ipv ip_version) {
 
         if(gni_res && strcmp(interface->ifa_name, interface_name) == 0 && interface->ifa_addr->sa_family == family) {
             if((*dest) == NULL) {
-                (*dest) = malloc(sizeof(char) * strlen(current_ip) + 1);
-                strcpy((*dest), current_ip);
+                (*dest) = malloc(sizeof(wchar_t) * strlen(current_ip) + 4);
+                mbstowcs((*dest), current_ip, MAX_DATA_LENGTH);
             }
             else {
                 // Memory for: previous content + current IP string + memory for newline
-                (*dest) = realloc((*dest), sizeof(char) * strlen(*dest)
-                       + sizeof(char) * (strlen(current_ip) + 1)
-                       + 1);
-                strcat((*dest), "\n");
-                strcat((*dest), current_ip);
+                (*dest) = realloc((*dest), sizeof(wchar_t) * wcslen(*dest)
+                       + sizeof(wchar_t) * (strlen(current_ip) + 4)
+                       + 4);
+                wcscat((*dest), L"\n");
+				
+				wchar_t tmp_ip[MAX_IP_LENGTH];
+				mbstowcs(tmp_ip, current_ip, MAX_DATA_LENGTH);
+                wcscat((*dest), tmp_ip);
             }
             c++;
         }

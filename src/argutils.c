@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <wchar.h>
 
 #define spacing_chars " \t\n\v\f\r"
 #define is_digit(c) (c >= 48 && c <= 57)
@@ -50,23 +51,23 @@ static void handle_show_argument(int *dest, int *ai, char **argv, char *error_pr
     }
 }
 
-static void handle_label_argument(char *dest, int *ai, char **argv, char *error_premise)
+static void handle_label_argument(wchar_t *dest, int *ai, char **argv, char *error_premise)
 {
-    if(strlen(argv[*ai]) >= MAX_LABEL_LENGTH) {
-        printf("%s\"%s\" is not a valid label. Labels have a maximum length of %d\n", error_premise, argv[*ai], MAX_LABEL_LENGTH);
+	mbstowcs(dest, argv[*ai], MAX_LABEL_LENGTH);
+
+    if(wcslen(dest) >= MAX_LABEL_LENGTH) {
+        printf("%s\"%s\" is not a valid label. Labels have a maximum length of %d\n", error_premise, argv[*ai], MAX_LABEL_LENGTH - 1);
         exit(EXIT_FAILURE);
     }
-
-    strcpy(dest, argv[*ai]);
 }
 
-static void handle_sep_argument(char *dest, char *sep, char *error_premise) {
-    if(strlen(sep) >= MAX_SEP_LENGTH) {
+static void handle_sep_argument(wchar_t *dest, char *sep, char *error_premise) {
+	mbstowcs(dest, sep, MAX_SEP_LENGTH);
+
+    if(wcslen(dest) >= MAX_SEP_LENGTH) {
         printf("%s\"%s\" is not a valid separator\nThe separator must be at maximum %d characters long\n", error_premise, sep, MAX_SEP_LENGTH - 1);
         exit(EXIT_FAILURE);
     }
-
-    strcpy(dest, sep);
 }
 
 static void handle_data_argument(char **argv, int argc, struct data_item *data, int *ai, char *error_premise)
@@ -377,15 +378,15 @@ int args_from_file(char ***argv, int *argc, char *file_path) {
 int logo_from_file(struct logo *dest, char *path) {
     FILE *fs = fopen(path, "r");
     if(fs == NULL) return 0;
-    char buf[LOGO_LINE_LENGTH];
+    wchar_t buf[LOGO_LINE_LENGTH];
 
     unsigned int i = 0;
     while(i < LOGO_ROWS_NUM) {
-        if(!fgets(buf, LOGO_LINE_LENGTH, fs)) break;
+        if(!fgetws(buf, LOGO_LINE_LENGTH, fs)) break;
         
-        buf[strcspn(buf, "\n")] = '\0';
+        buf[wcscspn(buf, L"\n")] = '\0';
 
-        strcpy(dest->row[i], buf);
+        wcscpy(dest->row[i], buf);
         i++;
     }
     fclose(fs);

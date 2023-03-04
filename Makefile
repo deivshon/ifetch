@@ -5,12 +5,7 @@ DEST_DIR ?=
 INSTALL_DIR = /usr/bin
 ETC_CONFIG_DIR = /etc/ifetch
 
-ifeq ($(DBG), true)
-	CFLAGS = -Wall -Wextra -g
-else
-	CFLAGS ?= -Wall -Wextra -O2
-endif
-
+CFLAGS ?= -Wall -Wextra -O2
 LDFLAGS ?= -Wl,-z,relro,-z,now
 
 .PHONY: clean

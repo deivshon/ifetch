@@ -2,6 +2,7 @@
 #define IFETCH
 
 #include "netutils.h"
+#include <stdlib.h>
 
 #define LOGO_ROWS_NUM 32
 #define LOGO_LINE_LENGTH 32
@@ -21,16 +22,16 @@
 #define starts_with(str, prefix) !strncmp(str, prefix, strlen(prefix))
 
 struct logo {
-    char row[LOGO_ROWS_NUM][LOGO_LINE_LENGTH];
+    wchar_t row[LOGO_ROWS_NUM][LOGO_LINE_LENGTH];
     unsigned int rows_used;
 };
 
 struct data_item {
-    char *data;
-    char label[MAX_LABEL_LENGTH];
+    wchar_t *data;
+    wchar_t label[MAX_LABEL_LENGTH];
     int show;
 
-    char sep[MAX_SEP_LENGTH];
+    wchar_t sep[MAX_SEP_LENGTH];
     char *logo_color;
     char *field_color;
     char *sep_color;

@@ -1,6 +1,8 @@
 #ifndef NETUTILS
 #define NETUTILS
 
+#include <stdlib.h>
+
 #define INTERFACE_SIZE 32
 #define MAX_IPVX_NUM 8
 #define MAX_IP_LENGTH 128
@@ -16,11 +18,11 @@ enum ipv {IPv4, IPv6};
 
 double get_bytes(double *dest, char *interface, enum transmission_type t);
 
-int to_formatted_bytes(char *dest, double bytes);
+int to_formatted_bytes(wchar_t *dest, int dest_size, double bytes);
 
-int get_mac(char *dest, char *interface);
+int get_mac(wchar_t *dest, char *interface);
 
-int get_ip(char **dest, char *interface_name, enum ipv ip_version);
+int get_ip(wchar_t **dest, char *interface_name, enum ipv ip_version);
 
 int get_max_interface(char *dest, double *dest_rx_bytes, double *dest_tx_bytes);
 
