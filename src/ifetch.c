@@ -150,7 +150,11 @@ unsigned int get_max_padding(struct data_item items[]) {
 }
 
 int main(int argc, char **argv) {
-	setlocale(LC_ALL, "en_US.UTF-8");
+	if(!(getenv("LANG") && setlocale(LC_ALL, getenv("LANG"))) &&
+	   !(getenv("LC_ALL") && setlocale(LC_ALL, getenv("LC_ALL")))) {
+		// If no relevant locale environment variable is set, fall back to English
+		setlocale(LC_ALL, "en_US.UTF-8");
+	}
 	on_tty = isatty(STDOUT_FILENO);
 
     char *home_dir = getpwuid(getuid())->pw_dir;
