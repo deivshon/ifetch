@@ -8,13 +8,19 @@
 
 ifetch is a simple tool for Linux systems to display network interface information.
 
-### <b>Installation and removal</b>
-
-* Download the source files from the latest release and extract them from the archive (or directly clone the repository)
-* <code>cd</code> into the ifetch directory
-* Execute the command <code>make install</code> as root (using <code>sudo</code> or analogous tools) if you want to install ifetch
-* Execute the command <code>make uninstall</code> as root if you want to uninstall ifetch and keep the configuration options in the <code>/etc/ifetch/</code> directory
-* Execute the command <code>make purge</code> as root if you want to remove the configuration options in the <code>/etc/ifetch/</code> directory
+### <b>Installation</b>
+Clone the repository and run
+```
+# make install
+```
+### <b>Removal</b>
+```
+# make uninstall
+```
+If you want to uninstall ifetch **and** remove the configuration options stored in `/etc/ifetch` run
+```
+# make purge
+```
 
 ### <b>Options</b>
 Options are passed as arguments through the command line or extracted from a configuration file, necessarily named <code>ifetchrc</code>. Configuration files can be placed in <code>/etc/ifetch/</code> and <code>~/.config/ifetch/</code>, the latter takes precedence over the former.
